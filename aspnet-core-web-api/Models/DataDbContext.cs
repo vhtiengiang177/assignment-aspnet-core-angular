@@ -13,21 +13,17 @@ namespace aspnet_core_web_api.Models
 
         }
 
-        public virtual DbSet<Product> Products { get; set; }
-        public virtual DbSet<ProductDetail> ProductDetails { get; set; }
-        public virtual DbSet<Category> Categories { get; set; }
-        public virtual DbSet<Supplier> Suppliers { get; set; }
-        public virtual DbSet<Product_Category> Product_Categories { get; set; }
+        public DbSet<Product> Products { get; set; }
+        public DbSet<ProductDetail> ProductDetails { get; set; }
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<Supplier> Suppliers { get; set; }
+        public DbSet<Product_Category> Product_Categories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Product>(entity =>
             {
                 entity.HasKey(e => e.ID);
-                entity.Property(e => e.Name);
-                entity.Property(e => e.Price);
-                entity.Property(e => e.Rating);
-                entity.Property(e => e.ReleaseDate);
                 entity.HasOne<ProductDetail>(product => product.ProductDetail)
                       .WithOne(pdetail => pdetail.Product)
                       .HasForeignKey<ProductDetail>(pdetail => pdetail.ProductID);
@@ -39,7 +35,6 @@ namespace aspnet_core_web_api.Models
             modelBuilder.Entity<ProductDetail>(entity =>
             {
                 entity.HasKey(e => e.ProductID);
-                entity.Property(e => e.Details);
                 entity.HasOne<Product>(e => e.Product)
                       .WithOne(a => a.ProductDetail);
             });
