@@ -101,20 +101,17 @@ namespace aspnet_core_web_api.Controllers
         }
 
         [HttpGet("[action]/{filter}")]
-        public IActionResult SearchProduct(int filter, [FromForm]string search = "But")
+        public IActionResult QueryProductByNameOrCategory(int filter, [FromForm]string search = "B")
         {
             List<Product> lProduct = new List<Product>();
             switch (filter)
             {
-                case 0:
+                case 0: // name
                     lProduct = _dbContext.Products.Where(p => p.Name.Contains(search)).ToList();
                     break;
-                case 1:
-                    var lProductID = _dbContext.Product_Categories.Where(pc => pc.Category.Name.Contains(search)).ToList();
-                    foreach(var item in lProductID)
-                    {
-                        lProduct.Add(_dbContext.Products.Find(item.ProductID));
-                    }
+                case 1: // category
+                    var lProductItem = _dbContext.Product_Categories.Where(pc => pc.Category.Name.Contains(search)).Select(s=>s.Product).ToList();
+                    lProduct = lProductItem.GroupBy(gb => gb.ID).Select(s => s.First()).ToList();
                     break;
                 default:
                     return NoContent();
@@ -123,8 +120,21 @@ namespace aspnet_core_web_api.Controllers
             {
                 return NoContent();
             }
+            return Ok(lProduct); 
+        }
 
-            return Ok(lProduct); // lỗi
+        [HttpGet("[action]")]
+        public IActionResult QueryProductByPriceRange([FromForm] double min, double max)
+        {
+            if (min > max)
+                return NotFound();
+            List<Product> lProduct = new List<Product>();
+            lProduct = _dbContext.Products.Where(p => p.Price >= min && p.Price <= max).Select(p => p).ToList();
+            if (lProduct == null)
+            {
+                return NoContent();
+            }
+            return Ok(lProduct);
         }
     }
 }
