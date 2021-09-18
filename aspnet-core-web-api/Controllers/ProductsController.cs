@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace aspnet_core_web_api.Controllers
 {
@@ -21,9 +22,10 @@ namespace aspnet_core_web_api.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAllProducts()
+        public async Task<IActionResult> GetAllProducts()
         {
-            return Ok(_dbContext.Products);
+            var products = _dbContext.Products;
+            return Ok(await products.ToListAsync());
         }
 
         [HttpGet("[action]/{productID}")]
@@ -43,32 +45,40 @@ namespace aspnet_core_web_api.Controllers
         [HttpPost("[action]")]
         public async Task<IActionResult> CreateProduct([FromBody] Product product)
         {
-            await _dbContext.AddAsync(product);
-            await _dbContext.SaveChangesAsync();
-            return StatusCode(StatusCodes.Status201Created);
+            if (ModelState.IsValid)
+            {
+                await _dbContext.AddAsync(product);
+                await _dbContext.SaveChangesAsync();
+                return StatusCode(StatusCodes.Status201Created);
+            }
+            return BadRequest(ModelState);
         }
 
         [HttpPut("[action]/{productID}")]
         public async Task<IActionResult> UpdateProduct(int productID, [FromBody] Product productObj)
         {
-            var product = await _dbContext.Products.FindAsync(productID);
-            if(product == null)
+            if (ModelState.IsValid)
             {
-                return NotFound();
-            }
-            else
-            {
-                product.Name = productObj.Name;
-                product.Description = productObj.Description;
-                product.ReleaseDate = productObj.ReleaseDate;
-                product.DiscontinuedDate = productObj.DiscontinuedDate;
-                product.Rating = productObj.Rating;
-                product.ReleaseDate = productObj.ReleaseDate;
-                product.SupplierID = product.SupplierID;
+                var product = await _dbContext.Products.FindAsync(productID);
+                if (product == null)
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    product.Name = productObj.Name;
+                    product.Description = productObj.Description;
+                    product.ReleaseDate = productObj.ReleaseDate;
+                    product.DiscontinuedDate = productObj.DiscontinuedDate;
+                    product.Rating = productObj.Rating;
+                    product.ReleaseDate = productObj.ReleaseDate;
+                    product.SupplierID = product.SupplierID;
 
-                await _dbContext.SaveChangesAsync();
-                return Ok();
+                    await _dbContext.SaveChangesAsync();
+                    return Ok();
+                }
             }
+            return BadRequest(ModelState);
         }
 
         [HttpDelete("[action]/{productID}")]
@@ -101,16 +111,16 @@ namespace aspnet_core_web_api.Controllers
         }
 
         [HttpGet("[action]/{filter}")]
-        public IActionResult QueryProductByNameOrCategory(int filter, [FromForm]string search = "B")
+        public async Task<IActionResult> SearchProductByNameOrCategory(int filter, [FromForm]string query)
         {
             List<Product> lProduct = new List<Product>();
             switch (filter)
             {
                 case 0: // name
-                    lProduct = _dbContext.Products.Where(p => p.Name.Contains(search)).ToList();
+                    lProduct = await _dbContext.Products.Where(p => p.Name.StartsWith(query)).ToListAsync();
                     break;
                 case 1: // category
-                    var lProductItem = _dbContext.Product_Categories.Where(pc => pc.Category.Name.Contains(search)).Select(s=>s.Product).ToList();
+                    var lProductItem = await _dbContext.Product_Categories.Where(pc => pc.Category.Name.StartsWith(query)).Select(s=>s.Product).ToListAsync();
                     lProduct = lProductItem.GroupBy(gb => gb.ID).Select(s => s.First()).ToList();
                     break;
                 default:
@@ -118,23 +128,25 @@ namespace aspnet_core_web_api.Controllers
             }
             if(lProduct == null)
             {
-                return NoContent();
+                return NotFound();
             }
             return Ok(lProduct); 
         }
 
         [HttpGet("[action]")]
-        public IActionResult QueryProductByPriceRange([FromForm] double min, double max)
+        public async Task<IActionResult> QueryProductByPriceRange([FromForm] double min, double max)
         {
-            if (min > max)
-                return NotFound();
+            if (min > max || min < 0)
+                return BadRequest();
             List<Product> lProduct = new List<Product>();
-            lProduct = _dbContext.Products.Where(p => p.Price >= min && p.Price <= max).Select(p => p).ToList();
+            lProduct = await _dbContext.Products.Where(p => p.Price >= min && p.Price <= max).Select(p => p).ToListAsync();
             if (lProduct == null)
             {
-                return NoContent();
+                return NotFound();
             }
             return Ok(lProduct);
         }
+
+
     }
 }
