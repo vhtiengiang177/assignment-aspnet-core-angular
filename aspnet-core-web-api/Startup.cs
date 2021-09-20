@@ -1,4 +1,4 @@
-using aspnet_core_web_api.Models;
+using aspnet_core_web_api.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;

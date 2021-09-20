@@ -1,13 +1,18 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using aspnet_core_web_api.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace aspnet_core_web_api.Models
+namespace aspnet_core_web_api.Data
 {
     public class DataDbContext : DbContext
     {
+        public DataDbContext()
+        {
+        }
+
         public DataDbContext(DbContextOptions<DataDbContext> options) : base(options)
         {
 
@@ -18,6 +23,7 @@ namespace aspnet_core_web_api.Models
         public DbSet<Category> Categories { get; set; }
         public DbSet<Supplier> Suppliers { get; set; }
         public DbSet<Product_Category> Product_Categories { get; set; }
+        public DbSet<User> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -63,6 +69,11 @@ namespace aspnet_core_web_api.Models
                 entity.HasOne<Category>(pc => pc.Category)
                       .WithMany(ct => ct.Product_Categories)
                       .HasForeignKey(pc => pc.CategoryID);
+            });
+
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.HasKey(u => u.ID);
             });
         }
     }

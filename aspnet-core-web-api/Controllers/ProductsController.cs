@@ -1,4 +1,5 @@
 ﻿using aspnet_core_web_api.Models;
+using aspnet_core_web_api.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -14,24 +15,24 @@ namespace aspnet_core_web_api.Controllers
     [ApiController]
     public class ProductsController : ControllerBase
     {
-        private DataDbContext _dbContext;
-
+        UnitOfWork.UnitOfWork _unitOfWork;
         public ProductsController(DataDbContext dataDbContext)
         {
-            _dbContext = dataDbContext;
+            _unitOfWork = new UnitOfWork.UnitOfWork(dataDbContext);
+            _unitOfWork.Save();
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAllProducts()
         {
-            var products = _dbContext.Products;
-            return Ok(await products.ToListAsync());
+            // return Ok(await _productsRepository.GetAllProducts().ToListAsync());
+            return Ok(await _unitOfWork.ProductsRepository.GetAllProducts().ToListAsync());
         }
 
         [HttpGet("[action]/{productID}")]
-        public async Task<IActionResult> GetAProduct(int productID)
+        public IActionResult GetAProduct(int productID)
         {
-            var _product = await _dbContext.Products.FindAsync(productID);
+            var _product = _unitOfWork.ProductsRepository.GetAProduct(productID);
             if(_product == null)
             {
                 return NotFound();
@@ -43,89 +44,52 @@ namespace aspnet_core_web_api.Controllers
         }
 
         [HttpPost("[action]")]
-        public async Task<IActionResult> CreateProduct([FromBody] Product product)
+        public IActionResult CreateProduct([FromForm] Product product)
         {
             if (ModelState.IsValid)
             {
-                await _dbContext.AddAsync(product);
-                await _dbContext.SaveChangesAsync();
+                _unitOfWork.ProductsRepository.CreateProduct(product);
+                _unitOfWork.ProductsRepository.SaveChanges();
                 return StatusCode(StatusCodes.Status201Created);
             }
             return BadRequest(ModelState);
         }
 
         [HttpPut("[action]/{productID}")]
-        public async Task<IActionResult> UpdateProduct(int productID, [FromBody] Product productObj)
+        public IActionResult UpdateProduct(int productID, [FromForm] Product productObj)
         {
             if (ModelState.IsValid)
             {
-                var product = await _dbContext.Products.FindAsync(productID);
-                if (product == null)
+                var isUpdate = _unitOfWork.ProductsRepository.UpdateProduct(productID, productObj);
+                if (isUpdate)
                 {
-                    return NotFound();
+                    _unitOfWork.ProductsRepository.SaveChanges();
+                    return Ok();
                 }
                 else
                 {
-                    product.Name = productObj.Name;
-                    product.Description = productObj.Description;
-                    product.ReleaseDate = productObj.ReleaseDate;
-                    product.DiscontinuedDate = productObj.DiscontinuedDate;
-                    product.Rating = productObj.Rating;
-                    product.ReleaseDate = productObj.ReleaseDate;
-                    product.SupplierID = product.SupplierID;
-
-                    await _dbContext.SaveChangesAsync();
-                    return Ok();
+                    return NotFound();
                 }
             }
             return BadRequest(ModelState);
         }
 
         [HttpDelete("[action]/{productID}")]
-        public async Task<IActionResult> DeleteProduct(int productID)
+        public IActionResult DeleteProduct(int productID)
         {
-            var product = await _dbContext.Products.FindAsync(productID);
-            var productDetail = await _dbContext.ProductDetails.FindAsync(productID);
-            var product_category = _dbContext.Product_Categories.Where(p => p.ProductID == productID).ToList();
-            if(product == null)
+            bool isDelete = _unitOfWork.ProductsRepository.DeleteProduct(productID);
+            if (isDelete)
             {
-                return NotFound();
-            }
-            else
-            {
-                if (product_category != null)
-                {
-                    foreach (var item in product_category)
-                    {
-                        _dbContext.Product_Categories.Remove(item);
-                    }
-                }
-                if (productDetail != null)
-                {
-                    _dbContext.ProductDetails.Remove(productDetail);
-                }
-                _dbContext.Products.Remove(product);
-                await _dbContext.SaveChangesAsync();
+                _unitOfWork.ProductsRepository.SaveChanges();
                 return Ok();
-            }
+            }    
+            return NotFound();
         }
 
         [HttpGet("[action]/{filter}")]
-        public async Task<IActionResult> SearchProductByNameOrCategory(int filter, [FromForm]string query)
+        public IActionResult SearchProductByNameOrCategory(int filter, [FromForm]string content)
         {
-            List<Product> lProduct = new List<Product>();
-            switch (filter)
-            {
-                case 0: // name
-                    lProduct = await _dbContext.Products.Where(p => p.Name.StartsWith(query)).ToListAsync();
-                    break;
-                case 1: // category
-                    var lProductItem = await _dbContext.Product_Categories.Where(pc => pc.Category.Name.StartsWith(query)).Select(s=>s.Product).ToListAsync();
-                    lProduct = lProductItem.GroupBy(gb => gb.ID).Select(s => s.First()).ToList();
-                    break;
-                default:
-                    return NoContent();
-            }
+            List<Product> lProduct = _unitOfWork.ProductsRepository.SearchProductByNameOrCategory(filter, content);
             if(lProduct == null)
             {
                 return NotFound();
@@ -134,19 +98,17 @@ namespace aspnet_core_web_api.Controllers
         }
 
         [HttpGet("[action]")]
-        public async Task<IActionResult> QueryProductByPriceRange([FromForm] double min, double max)
+        public IActionResult QueryProductByPriceRange([FromForm] double min, [FromForm] double max)
         {
             if (min > max || min < 0)
                 return BadRequest();
-            List<Product> lProduct = new List<Product>();
-            lProduct = await _dbContext.Products.Where(p => p.Price >= min && p.Price <= max).Select(p => p).ToListAsync();
+            List<Product> lProduct = _unitOfWork.ProductsRepository.QueryProductByPriceRange(min, max);
             if (lProduct == null)
             {
                 return NotFound();
             }
             return Ok(lProduct);
         }
-
 
     }
 }

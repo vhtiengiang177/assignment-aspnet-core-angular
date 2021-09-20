@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using aspnet_core_web_api.Models;
+using aspnet_core_web_api.Data;
 
 namespace aspnet_core_web_api.Migrations
 {
@@ -48,6 +48,7 @@ namespace aspnet_core_web_api.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<double>("Price")
@@ -113,6 +114,24 @@ namespace aspnet_core_web_api.Migrations
                     b.HasKey("ID");
 
                     b.ToTable("Suppliers");
+                });
+
+            modelBuilder.Entity("aspnet_core_web_api.Models.User", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Password")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Username")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("aspnet_core_web_api.Models.Product", b =>

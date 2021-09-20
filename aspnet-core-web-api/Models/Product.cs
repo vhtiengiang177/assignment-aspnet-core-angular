@@ -11,11 +11,10 @@ namespace aspnet_core_web_api.Models
         public int ID { get; set; }
         [Required (ErrorMessage = "Please enter a product name")]
         public String Name { get; set; }
-        public String? Description { get; set; }
+        public String Description { get; set; }
         public DateTime ReleaseDate { get; set; }
         public DateTime DiscontinuedDate { get; set; }
         [Range(0,5)]
-        [Required(AllowEmptyStrings = true)]
         public Int16 Rating { get; set; }
         public Double Price { get; set; }
         public int SupplierID { get; set; }
