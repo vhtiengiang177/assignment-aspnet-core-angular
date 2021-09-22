@@ -23,10 +23,29 @@ namespace aspnet_core_web_api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllProducts()
+        public async Task<IActionResult> GetAllProducts(int? pageIndex, int? pageSize, string sort)
         {
-            // return Ok(await _productsRepository.GetAllProducts().ToListAsync());
-            return Ok(await _unitOfWork.ProductsRepository.GetAllProducts().ToListAsync());
+            int currentPageIndex = pageIndex ?? 1;
+            int currentPageSize = pageSize ?? 4;
+            var lProduct = await _unitOfWork.ProductsRepository.GetAllProducts().ToListAsync();
+            switch (sort)
+            {
+                case "name:asc":
+                    lProduct = lProduct.OrderBy(p => p.Name).ToList();
+                    break;
+                case "name:desc":
+                    lProduct = lProduct.OrderByDescending(p => p.Name).ToList();
+                    break;
+                case "price:asc":
+                    lProduct = lProduct.OrderBy(p => p.Price).ToList();
+                    break;
+                case "price:desc":
+                    lProduct = lProduct.OrderByDescending(p => p.Price).ToList();
+                    break;
+                default:
+                    break;
+            }
+            return Ok(lProduct.Skip((currentPageIndex - 1) * currentPageSize).Take(currentPageSize).ToList());
         }
 
         [HttpGet("[action]/{productID}")]
@@ -87,9 +106,15 @@ namespace aspnet_core_web_api.Controllers
         }
 
         [HttpGet("[action]/{filter}")]
-        public IActionResult SearchProductByNameOrCategory(int filter, [FromForm]string content)
+        public IActionResult SearchProductByNameOrCategory(int filter, string content)
         {
-            List<Product> lProduct = _unitOfWork.ProductsRepository.SearchProductByNameOrCategory(filter, content);
+            List<Product> lProduct;
+            if (content == null)
+            {
+                lProduct = _unitOfWork.ProductsRepository.GetAllProducts().ToList();
+            }
+            else
+                lProduct = _unitOfWork.ProductsRepository.SearchProductByNameOrCategory(filter, content);
             if(lProduct == null)
             {
                 return NotFound();
@@ -98,7 +123,7 @@ namespace aspnet_core_web_api.Controllers
         }
 
         [HttpGet("[action]")]
-        public IActionResult QueryProductByPriceRange([FromForm] double min, [FromForm] double max)
+        public IActionResult QueryProductByPriceRange( double min, double max)
         {
             if (min > max || min < 0)
                 return BadRequest();
