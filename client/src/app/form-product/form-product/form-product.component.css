@@ -1,0 +1,36 @@
+.custom-form {
+    display: flex;
+    justify-content: center;
+}
+
+.error-required {
+  padding-bottom: 5px;
+}
+
+.custom-control {
+    padding: 2px;
+}
+    
+.btn-save {
+    background-color: #0093c9;
+    color: #fff;
+    border: 1px solid #0093c9;
+    font-size: 14px !important;
+  }
+   .btn-save:hover {
+    background-color: #b3ebff;
+    color: #000;
+    border: 1px solid #b3ebff;
+  }
+
+  .btn-cancel {
+    background-color: #afafaf;
+    color: #fff;
+    border: 1px solid #afafaf;
+    font-size: 14px !important;
+  }
+   .btn-cancel:hover {
+    background-color: #e0e0e0;
+    color: #000;
+    border: 1px solid #e0e0e0;
+  }

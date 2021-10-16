@@ -1,0 +1,90 @@
+<h2 *ngIf="this.data.typeform === 0" mat-dialog-title>Add Product</h2>
+<h2 *ngIf="this.data.typeform === 1" mat-dialog-title>Edit Product <strong>#{{data.product.id}}</strong></h2>
+<mat-dialog-content class="mat-typography">
+    <div class="form-group custom-form">
+        <mat-form-field appearance="fill" class="col-md-8">
+            <mat-label>Name</mat-label>
+            <input [(ngModel)]="data.product.name" #name="ngModel" matInput type="text" required>
+            <mat-error class="error-required" *ngIf="name.touched && name.invalid && name.errors?.required">
+                Name is <strong>required</strong>
+            </mat-error>
+        </mat-form-field>
+    </div>
+    <div class="form-group custom-form">
+        <mat-form-field appearance="fill" class="col-md-8">
+            <mat-label>Description</mat-label>
+            <textarea [(ngModel)]="data.product.description" matInput></textarea>
+        </mat-form-field>
+    </div>
+    <div class="form-group custom-form">
+        <mat-form-field appearance="fill" class="col-md-8">
+            <mat-label>Release Date</mat-label>
+            <input [(ngModel)]="data.product.releaseDate" matInput type="datetime-local">
+        </mat-form-field>
+    </div>
+    <div class="form-group custom-form">
+        <mat-form-field appearance="fill" class="col-md-8">
+            <mat-label>Discontinued Date</mat-label>
+            <input [(ngModel)]="data.product.discontinuedDate" matInput type="datetime-local">
+        </mat-form-field>
+    </div>
+    <div class="form-group custom-form">
+        <mat-form-field appearance="fill" class="col-md-8">
+            <mat-label>Rating</mat-label>
+            <input [(ngModel)]="data.product.rating" 
+                    #rating="ngModel"
+                    matInput 
+                    type="number" 
+                    min="0" 
+                    max="5" 
+                    required>
+            <mat-error class="error-required" *ngIf="rating.touched && rating.invalid && rating.errors?.required">
+                Rating is <strong>required</strong>
+            </mat-error>
+        </mat-form-field>
+    </div>
+    <div class="form-group custom-form">
+        <mat-form-field appearance="fill" class="col-md-8">
+            <mat-label>Price</mat-label>
+            <input [(ngModel)]="data.product.price" 
+                    #price="ngModel"
+                    matInput 
+                    type="number" 
+                    required>
+            <mat-error class="error-required" *ngIf="price.touched && price.invalid && price.errors?.required">
+                Price is <strong>required</strong>
+            </mat-error>
+        </mat-form-field>
+    </div>
+    <div class="form-group custom-form">
+        <mat-form-field appearance="fill" class="col-md-8">
+            <mat-label>Categories</mat-label>
+            <mat-select [(ngModel)]="data.categories" [compareWith]="compareCategory" #selectCategory multiple>
+                <mat-select-trigger>
+                {{ data.categories ? data.categories[0]?.name : '' }}
+                <span *ngIf="data.categories.length > 1 && !isAll" class="example-additional-selection">
+                    (+{{ data.categories.length - 1}} {{data.categories.length === 2 ? 'other' : 'others'}})
+                </span>
+                </mat-select-trigger>
+                <mat-option [value]="{id: 0, name: 'All'}" (click)="selectedAllCategory()">All</mat-option>
+                <mat-option (click)="selectedCategories(categories)" *ngFor="let category of categoriesStore.categories$ | async" [value]="category">{{category.name}}</mat-option>
+            </mat-select> 
+        </mat-form-field> 
+    </div>
+    <div class="form-group custom-form">
+        <mat-form-field appearance="fill" class="col-md-8">
+            <mat-label>Supplier</mat-label>
+            <mat-select [(ngModel)]="data.product.supplierID" [compareWith]="compareSupplier" #selectSupplier="ngModel" name="supplier" required>
+                <mat-option>None</mat-option>
+                <mat-option (click)="selectedSupplier(supplier)" *ngFor="let supplier of suppliersStore.suppliers$ | async" [value]="supplier.id">{{supplier.name}}</mat-option>
+            </mat-select>
+            <mat-error class="error-required" *ngIf="selectSupplier.touched && selectSupplier.invalid && selectSupplier.errors?.required">
+                Please choose a supplier
+            </mat-error>
+        </mat-form-field>
+    </div>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close class="btn btn-cancel">Cancel</button> &nbsp;
+    <button mat-button (click)="save()" cdkFocusInitial class="btn btn-save">Save</button>
+</mat-dialog-actions>

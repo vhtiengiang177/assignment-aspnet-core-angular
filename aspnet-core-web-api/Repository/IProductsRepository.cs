@@ -6,15 +6,14 @@ using System.Threading.Tasks;
 
 namespace aspnet_core_web_api.Repository
 {
-    interface IProductsRepository
+    interface IProductsRepository : IDisposable
     {
-        IQueryable<Product> GetAllProducts();
+        Task<IQueryable<Product>> GetAllProducts();
         Product GetAProduct(int productID);
-        void CreateProduct(Product product);
-        bool UpdateProduct(int productID, Product productObj);
-        bool DeleteProduct(int productID);
-        void SaveChanges();
-        List<Product> SearchProductByNameOrCategory(int filter, string content);
+        Product CreateProduct(Product product);
+        void UpdateProduct(Product product);
+        void DeleteProduct(Product product);
+        List<Product> SearchProductByNameOrCategory(string name, string category);
         List<Product> QueryProductByPriceRange(double min, double max);
     }
 }

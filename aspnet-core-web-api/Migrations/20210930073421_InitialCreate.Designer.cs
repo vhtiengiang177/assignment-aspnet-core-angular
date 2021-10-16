@@ -10,8 +10,8 @@ using aspnet_core_web_api.Data;
 namespace aspnet_core_web_api.Migrations
 {
     [DbContext(typeof(DataDbContext))]
-    [Migration("20210920031623_InitialCreated")]
-    partial class InitialCreated
+    [Migration("20210930073421_InitialCreate")]
+    partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

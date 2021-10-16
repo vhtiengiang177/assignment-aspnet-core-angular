@@ -4,75 +4,45 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace aspnet_core_web_api.Repository
 {
-    public class ProductsRepository : IProductsRepository
+    public class ProductsRepository : IProductsRepository, IDisposable
     {
         private DataDbContext _dbContext;
+        private bool disposed = false;
 
         public ProductsRepository(DataDbContext dataDbContext)
         {
             _dbContext = dataDbContext;
         }
 
-        public IQueryable<Product> GetAllProducts()
+        public async Task<IQueryable<Product>> GetAllProducts()
         {
-            return _dbContext.Products;
+            var lProduct = await _dbContext.Products.ToListAsync();
+            return lProduct.AsQueryable();
         }
 
         public Product GetAProduct(int productID)
         {
-            var product = _dbContext.Products.Find(productID);
-            return product;
+            return _dbContext.Products.Find(productID);
         }
 
-        public void CreateProduct(Product product)
+        public Product CreateProduct(Product product)
         {
-            _dbContext.Products.Add(product);
+            var result = _dbContext.Products.Add(product);
+            return result.Entity;
         }
 
-        public bool UpdateProduct(int productID, Product productObj)
+        public void UpdateProduct(Product product)
         {
-            var product = _dbContext.Products.Find(productID);
-            if (product == null)
-            {
-                return false;
-            }
-            else
-            {
-                product.Name = productObj.Name;
-                product.Description = productObj.Description;
-                product.ReleaseDate = productObj.ReleaseDate;
-                product.DiscontinuedDate = productObj.DiscontinuedDate;
-                product.Rating = productObj.Rating;
-                product.ReleaseDate = productObj.ReleaseDate;
-                product.SupplierID = product.SupplierID;
-                
-                return true;
-            }
+            _dbContext.Entry(product).State = EntityState.Modified;
         }
 
-        public bool DeleteProduct(int productID)
+        public void DeleteProduct(Product product)
         {
-            var product = _dbContext.Products.Find(productID);
-            if(product != null)
-            {
-                var productDetail = _dbContext.ProductDetails.Find(productID);
-                var product_category = _dbContext.Product_Categories.Where(p => p.ProductID == productID).ToList();
-                if (productDetail != null)
-                    _dbContext.ProductDetails.Remove(productDetail);
-                if (product_category != null)
-                {
-                    foreach (var item in product_category)
-                    {
-                        _dbContext.Product_Categories.Remove(item);
-                    }
-                }
-                _dbContext.Products.Remove(product);
-                return true;
-            }
-            return false;
+            _dbContext.Products.Remove(product);
         }
 
         public void SaveChanges()
@@ -80,20 +50,58 @@ namespace aspnet_core_web_api.Repository
             _dbContext.SaveChanges();
         }
 
-        public List<Product> SearchProductByNameOrCategory(int filter, string content)
+        public IQueryable<Product> SortListProducts(string sort, IQueryable<Product> lProduct)
         {
-            List<Product> lProduct = new List<Product>();
-            switch (filter)
+            switch (sort)
             {
-                case 0: // name
-                    lProduct = _dbContext.Products.Where(p => p.Name.StartsWith(content)).ToList();
+                case "rating:asc":
+                    lProduct = lProduct.OrderBy(p => p.Rating).AsQueryable();
                     break;
-                case 1: // category
-                    var lProductItem = _dbContext.Product_Categories.Where(pc => pc.Category.Name.StartsWith(content)).Select(s => s.Product).ToList();
-                    lProduct = lProductItem.GroupBy(gb => gb.ID).Select(s => s.First()).ToList();
+                case "rating:desc":
+                    lProduct = lProduct.OrderByDescending(p => p.Rating).AsQueryable();
+                    break;
+                case "price:asc":
+                    lProduct = lProduct.OrderBy(p => p.Price).AsQueryable();
+                    break;
+                case "price:desc":
+                    lProduct = lProduct.OrderByDescending(p => p.Price).AsQueryable();
+                    break;
+                case "name:desc":
+                    lProduct = lProduct.OrderByDescending(p => p.Name).AsQueryable();
+                    break;
+                case "name:asc":
+                    lProduct = lProduct.OrderBy(p => p.Name).AsQueryable();
+                    break;
+                case "id:asc":
+                    lProduct = lProduct.OrderBy(p => p.ID).AsQueryable();
                     break;
                 default:
-                    return null;
+                    lProduct = lProduct.OrderByDescending(p => p.ID).AsQueryable();
+                    break;
+            }
+            return lProduct;
+        }
+
+        public List<Product> SearchProductByNameOrCategory(string name, string category)
+        {
+            List<Product> lProduct = new List<Product>();
+            if(!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(category))
+            {
+                var lProductItem = _dbContext.Product_Categories
+                                    .Where(pc => pc.Category.Name.Contains(category) && pc.Product.Name.Contains(name))
+                                    .Select(s => s.Product).ToList();
+                lProduct = lProductItem.GroupBy(gb => gb.ID).Select(s => s.First()).ToList();
+            }
+            else if (!string.IsNullOrEmpty(category))
+            {
+                var lProductItem = _dbContext.Product_Categories
+                        .Where(pc => pc.Category.Name.Contains(category))
+                        .Select(s => s.Product).ToList();
+                lProduct = lProductItem.GroupBy(gb => gb.ID).Select(s => s.First()).ToList();
+            }
+            else
+            {
+                lProduct = _dbContext.Products.Where(p => p.Name.Contains(name)).ToList();
             }
             return lProduct;
         }
@@ -104,5 +112,31 @@ namespace aspnet_core_web_api.Repository
             lProduct = _dbContext.Products.Where(p => p.Price >= min && p.Price <= max).Select(p => p).ToList();
             return lProduct;
         }
+
+        public IQueryable<Product> SearchProductOfProductItems(string search, IQueryable<Product> lProductItems)
+        {
+            return lProductItems.Where(p => p.Name.Contains(search)).AsQueryable();
+        }
+
+
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!this.disposed)
+            {
+                if (disposing)
+                {
+                    _dbContext.Dispose();
+                }
+            }
+            this.disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
     }
 }

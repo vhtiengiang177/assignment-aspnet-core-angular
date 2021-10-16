@@ -32,7 +32,8 @@ namespace aspnet_core_web_api.Data
                 entity.HasKey(e => e.ID);
                 entity.HasOne<ProductDetail>(product => product.ProductDetail)
                       .WithOne(pdetail => pdetail.Product)
-                      .HasForeignKey<ProductDetail>(pdetail => pdetail.ProductID);
+                      .HasForeignKey<ProductDetail>(pdetail => pdetail.ProductID)
+                      .OnDelete(DeleteBehavior.Cascade);
                 entity.HasOne<Supplier>(product => product.Supplier)
                       .WithMany(sp => sp.Products)
                       .HasForeignKey(product => product.SupplierID);
@@ -55,7 +56,8 @@ namespace aspnet_core_web_api.Data
             {
                 entity.HasKey(e => e.ID);
                 entity.HasMany<Product>(sp => sp.Products)
-                      .WithOne(product => product.Supplier);
+                      .WithOne(product => product.Supplier)
+                      .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<Product_Category>(entity =>
@@ -69,6 +71,7 @@ namespace aspnet_core_web_api.Data
                 entity.HasOne<Category>(pc => pc.Category)
                       .WithMany(ct => ct.Product_Categories)
                       .HasForeignKey(pc => pc.CategoryID);
+                      
             });
 
             modelBuilder.Entity<User>(entity =>

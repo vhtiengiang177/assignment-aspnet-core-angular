@@ -1,0 +1,100 @@
+<div class="container">
+    <div class="row">
+        <h2>Product <strong>#{{ response?.product.id }}</strong></h2>
+    </div>
+    <div class="row">
+        <div class="col-md-3 title-item">
+            Name:
+        </div>
+        <div *ngIf="response?.product.name" class="col-md-9">
+            {{ response?.product.name }}
+        </div>
+        <div *ngIf="!response?.product.name" class="col-md-9">
+            N/A
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3 title-item">
+            Description:
+        </div>
+        <div *ngIf="response?.product.description" class="col-md-9">
+            {{ response?.product.description }}
+        </div>
+        <div *ngIf="!response?.product.description" class="col-md-9">
+            N/A
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3 title-item">
+            Release Date:
+        </div>
+        <div *ngIf="response?.product.releaseDate" class="col-md-9">
+            {{ response?.product.releaseDate | date: 'longDate'}}
+        </div>
+        <div *ngIf="!response?.product.releaseDate" class="col-md-9">
+            N/A
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3 title-item">
+            Discontinued Date:
+        </div>
+        <div *ngIf="response?.product.discontinuedDate" class="col-md-9">
+            {{ response?.product.discontinuedDate | date: 'longDate'}}
+        </div>
+        <div *ngIf="!response?.product.discontinuedDate" class="col-md-9">
+            N/A
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3 title-item">
+            Rating:
+        </div>
+        <div *ngIf="response?.product.rating" class="col-md-9">
+            {{ response?.product.rating }}
+        </div>
+        <div *ngIf="!response?.product.rating" class="col-md-9">
+            N/A
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3 title-item">
+            Price:
+        </div>
+        <div *ngIf="response?.product.price" class="col-md-9">
+            {{ response?.product.price | currency: 'VND' }}
+        </div>
+        <div *ngIf="!response?.product.price" class="col-md-9">
+            N/A
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3 title-item">
+            Categories:
+        </div>
+        <div *ngIf="categories && categories.length > 1" class="col-md-9">
+            <ul>
+                <li *ngFor="let category of categories">
+                    {{ category.name }}
+                </li>
+            </ul>
+        </div>
+        <div *ngIf="categories" class="col-md-9">
+            <span *ngFor="let category of categories">
+
+                {{ category.name }}
+            </span>
+        </div>
+        <div *ngIf="!categories" class="col-md-9">
+            N/A
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3 title-item">
+            Supplier:
+        </div>
+        <div class="col-md-9">
+            {{ supplierName }}
+        </div>
+    </div>
+</div>

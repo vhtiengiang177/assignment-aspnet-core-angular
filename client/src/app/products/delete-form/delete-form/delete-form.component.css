@@ -1,0 +1,14 @@
+.confirm-delete {
+    padding-bottom: 10px;
+}
+
+.btn-cancel {
+    background-color: #afafaf;
+    color: #fff;
+    border: 1px solid #afafaf;
+  }
+   .btn-cancel:hover {
+    background-color: #e0e0e0;
+    color: #000;
+    border: 1px solid #e0e0e0;
+  }
