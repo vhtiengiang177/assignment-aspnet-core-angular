@@ -1,0 +1,25 @@
+.title-item {
+    text-align: end;
+    font-weight: bold;
+}
+
+.row {
+    padding: 5px;
+    margin: 4px;
+}
+
+.detail-center {
+    justify-content: center;
+    padding-top: 2%;
+}
+
+.card-title {
+    border-bottom: solid gainsboro 1px;
+    padding: 5px;
+}
+
+@media (max-width: 768px) {
+    .title-item {
+        text-align: left;
+    }
+}

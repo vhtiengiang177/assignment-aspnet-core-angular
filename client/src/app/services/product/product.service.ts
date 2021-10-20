@@ -1,13 +1,15 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { AppError } from 'src/app/common/app-error';
-import { BadRequestError } from 'src/app/common/bad-request';
-import { GlobalConstants } from 'src/app/common/global-constants';
-import { NotFoundError } from 'src/app/common/not-found-error';
-import { Product } from 'src/app/model/product.model';
+import { GlobalConstants } from 'src/app/_shared/constants/global-constants';
+import { Product } from 'src/app/services/model/product.model';
 import { DataService } from '../data/data.service';
+import { BadRequestError } from 'src/app/_shared/errors/bad-request';
+import { AppError } from 'src/app/_shared/errors/app-error';
+import { NotFoundError } from 'src/app/_shared/errors/not-found-error';
+import { FilterParamsProduct } from '../model/filter-params-product.model';
+import { ResponseList } from '../model/response-list.model';
 @Injectable({
   providedIn: 'root'
 })
@@ -15,6 +17,16 @@ export class ProductService extends DataService {
   
   constructor(http: HttpClient) {
     super('/products', http);
+  }
+
+  
+  getAll (filterParams) {
+    return this.http.get<any>(GlobalConstants.apiUrl + this.routeAPI + this.convertToQueryString(filterParams), { 
+                      headers: this.authorizationHeader()
+                    })
+                    .pipe(catchError((error:Response) => {
+                      return throwError(new AppError(error));
+                    }));
   }
 
   searchProduct(pageNumber, pageSize, sort, idCategories, search) {
@@ -33,6 +45,15 @@ export class ProductService extends DataService {
                       return Observable.throw(new AppError(error));
                     }));
 
+  }
+
+  filterProduct(filterParams) {
+    return this.http.get<ResponseList>(GlobalConstants.apiUrl + this.routeAPI + '/filterproduct' + this.convertToQueryString(filterParams), { 
+      headers: this.authorizationHeader()
+    })
+    .pipe(catchError((error:Response) => {
+      return Observable.throw(new AppError(error));
+    }));
   }
 
   add(product, idCategories) {
@@ -83,6 +104,33 @@ export class ProductService extends DataService {
         return throwError(new BadRequestError())
       else throwError(new AppError(error))
     }))
+  }
+
+  convertToQueryString(filterParams: FilterParamsProduct): string {
+    const cloneParams = { ...filterParams };
+    let query = '?';
+  
+    if (cloneParams.idcategories) {
+      cloneParams.idcategories.forEach((categoryId) => {
+        query += `idCategories=${categoryId}&`;
+      });
+    }
+    delete cloneParams.idcategories;
+
+    if (cloneParams.rating) {
+      cloneParams.rating.forEach((item) => {
+        query += `rating=${item}&`;
+      });
+    }
+    delete cloneParams.rating;
+  
+    Object.entries(cloneParams).forEach(([key, value]) => {
+      if (value != undefined) {
+        query += `${key}=${value}&`;
+      }
+    });
+
+    return query;
   }
 
 }

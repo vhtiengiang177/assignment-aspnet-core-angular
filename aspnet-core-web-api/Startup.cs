@@ -1,5 +1,5 @@
 using aspnet_core_web_api.AutoMapper;
-using aspnet_core_web_api.Data;
+using Infrastructure.Persistent;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -38,7 +38,8 @@ namespace aspnet_core_web_api
 );
             services.AddCors();
 
-            services.AddDbContext<DataDbContext>(options => options.UseSqlServer(@"Data Source=HONGDUC109\TIENGIANG; Initial Catalog=assignmentdb; User ID=sa; PWD=123456aA"));
+            services.AddDbContext<DataDbContext>(options => options.UseSqlServer(@"Data Source=HONGDUC109\TIENGIANG; Initial Catalog=assignmentdb; User ID=sa; PWD=123456aA",
+                b => b.MigrationsAssembly("aspnet-core-web-api")));
             
             services.AddSwaggerGen(c =>
             {

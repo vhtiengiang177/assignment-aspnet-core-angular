@@ -1,4 +1,5 @@
-﻿using aspnet_core_web_api.Data;
+﻿using Infrastructure.Persistent;
+using Infrastructure.Persistent.UnitOfWork;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,18 +15,18 @@ namespace aspnet_core_web_api.Controllers
     [ApiController]
     public class SuppliersController : ControllerBase
     {
-        UnitOfWork.UnitOfWork _unitOfWork;
+        UnitOfWork _unitOfWork;
         public SuppliersController(DataDbContext dataDbContext)
         {
-            _unitOfWork = new UnitOfWork.UnitOfWork(dataDbContext);
+            _unitOfWork = new UnitOfWork(dataDbContext);
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllSuppliers()
+        public IActionResult GetAllSuppliers()
         {
-            var lSuppliers = await _unitOfWork.SuppliersRepository.GetAllSuppliers();
+            var lSuppliers = _unitOfWork.SuppliersRepository.Get();
 
-            return Ok(lSuppliers);
+            return Ok(lSuppliers.ToList());
         }
     }
 }

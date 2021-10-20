@@ -1,0 +1,72 @@
+<nav-menu></nav-menu>
+
+<div class="container">
+    <div class="row">
+      <div  [ngClass]="{'disabled': productsStore.totalPages == 0 && !isSearch}">
+        <search-product 
+          [post-per-page]="postPerPage"
+          (search-event)="searchEvent($event)">
+        </search-product>
+      </div>
+  
+      <div class="button-add">
+        <button 
+        mat-raised-button 
+        (click)="addProduct()"
+        class="btn btn-primary btn-add">Add Product</button>
+      </div>
+          
+      <table id="myTable" class="table table-striped table-hover table-sm ">
+        <thead class="dt-header">
+          <tr>
+            <th (click)="sortID()">ID
+              <fa-icon *ngIf="filter.sort == null" [icon]="fasortdown"></fa-icon>
+              <fa-icon *ngIf="filter.sort == 'id:asc'" [icon]="fasortup"></fa-icon>
+            </th>
+            <th (click)="sortName()">Name
+              <fa-icon *ngIf="filter.sort == 'name:desc'" [icon]="fasortdown"></fa-icon>
+              <fa-icon *ngIf="filter.sort == 'name:asc'" [icon]="fasortup"></fa-icon>
+            </th>
+            <th>Release Date</th>
+            <th>Discontinued Date</th>
+            <th (click)="sortRating()">Rating
+              <fa-icon *ngIf="filter.sort == 'rating:desc'" [icon]="fasortdown">></fa-icon>
+              <fa-icon *ngIf="filter.sort == 'rating:asc'" [icon]="fasortup"></fa-icon>
+            </th>
+            <th (click)="sortPrice()">Price
+              <fa-icon *ngIf="filter.sort == 'price:desc'"  [icon]="fasortdown"></fa-icon>
+              <fa-icon *ngIf="filter.sort == 'price:asc'" [icon]="fasortup"></fa-icon>
+            </th>
+            <th colspan="2">Action</th>
+          </tr>
+        </thead>
+        <tbody class="table-body" *ngIf="productsStore.totalPage > 0">
+          <tr *ngFor="let product of productsStore.products$ | async">
+            <td>{{ product.id }}</td>
+            <td><a [routerLink]="['/products', product.id]">{{ product.name }}</a></td>
+            <td>{{ product.releaseDate | date: 'longDate' }}</td>
+            <td>{{ product.discontinuedDate | date: 'longDate' }}</td>
+            <td>{{ product.rating }}</td>
+            <td>{{ product.price | currency: 'VND' }}</td>
+            <td (click)="editProduct(product.id)"><fa-icon class="edit-icon" [icon]="faedit"></fa-icon></td>
+            <td (click)="deleteProduct(product.id)"><fa-icon class="delete-icon" [icon]="fatrash"></fa-icon></td>
+          </tr>
+        </tbody>
+        <tbody *ngIf="productsStore.totalPages == 0">
+          <tr>
+            <td colspan="8">No data available in table</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pb-0 pt-3 paging-custom">
+        <mat-paginator
+          [length]="productsStore.totalPage"
+          [(pageSize)]="filter.pagesize"
+          [pageSizeOptions]="[5, 10, 15]"
+          (page)="onPaginate($event)"
+          showFirstLastButtons>
+        </mat-paginator>
+      </div>
+    </div>
+</div>
+

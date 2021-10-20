@@ -7,6 +7,8 @@ body {
     margin: 0; 
     font-family: Roboto, "Helvetica Neue", sans-serif; 
     background-color: floralwhite;
+    background-image: url("assets/image/E.jpg");
+    background-size: contain;
 }
 
 

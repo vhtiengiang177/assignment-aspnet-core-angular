@@ -1,0 +1,65 @@
+.dt-header{
+  background-color: rgb(212, 242, 252);
+}
+
+a {
+  text-decoration: none !important;
+  color: #000;
+}
+
+.table-body {
+background-color: white;
+}
+
+.edit-icon {
+  color: mediumpurple
+}
+
+.delete-icon {
+  color:salmon
+}
+
+.mat-paginator {
+  background-color: rgb(212, 242, 252);
+    border-radius: 100px;
+}
+
+.disabled {
+  pointer-events: none;
+  /* for "disabled" effect */
+  opacity: 0.5;
+}
+
+.paging-custom {
+  display: flex;
+  justify-content: flex-end;
+}
+
+@media (min-width: 1200px) {
+  .container-xl, .container-lg, .container-md, .container-sm, .container {
+      max-width: 1200px !important;
+      font-size: 16px !important;
+  }
+}
+
+.btn-add {
+  background-color: #0093c9;
+  color: #fff;
+  border: 1px solid #0093c9;
+  font-size: 14px !important;
+}
+ .btn-add:hover {
+  background-color: #b3ebff;
+  color: #000;
+  border: 1px solid #b3ebff;
+}
+
+.button-add {
+  display: flex;
+  justify-content: end;
+  padding: 4px;
+}
+
+.container {
+  padding-top: 2%;
+}

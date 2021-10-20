@@ -1,5 +1,6 @@
-﻿using aspnet_core_web_api.Data;
-using aspnet_core_web_api.Models;
+﻿using Domain.Entity;
+using Infrastructure.Persistent;
+using Infrastructure.Persistent.UnitOfWork;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -19,12 +20,12 @@ namespace aspnet_core_web_api.Controllers
     public class TokenController : ControllerBase
     {
         public IConfiguration _configuration;
-        public UnitOfWork.UnitOfWork _unitOfWork;
+        public UnitOfWork _unitOfWork;
 
         public TokenController(IConfiguration configuration, DataDbContext dataDbContext)
         {
             this._configuration = configuration;
-            _unitOfWork = new UnitOfWork.UnitOfWork(dataDbContext);
+            _unitOfWork = new UnitOfWork(dataDbContext);
         }
 
         [HttpPost]

@@ -1,6 +1,4 @@
-﻿using aspnet_core_web_api.Models;
-using aspnet_core_web_api.Data;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -12,6 +10,10 @@ using Microsoft.AspNetCore.Authorization;
 using AutoMapper;
 using aspnet_core_web_api.DTO;
 using AutoMapper.QueryableExtensions;
+using Infrastructure.Persistent.UnitOfWork;
+using Infrastructure.Persistent;
+using Domain.Entity;
+using Domain.Values;
 
 namespace aspnet_core_web_api.Controllers
 {
@@ -20,31 +22,29 @@ namespace aspnet_core_web_api.Controllers
     [ApiController]
     public class ProductsController : ControllerBase
     {
-        UnitOfWork.UnitOfWork _unitOfWork;
+        private UnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
         public ProductsController(DataDbContext dataDbContext, IMapper mapper)
         {
-            _unitOfWork = new UnitOfWork.UnitOfWork(dataDbContext);
+            _unitOfWork = new UnitOfWork(dataDbContext);
             _mapper = mapper;
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllProducts(int? pageNumber, int? pageSize, string sort = null)
+        public async Task<IActionResult> GetAllProducts([FromQuery] FilterParamsProduct filterParams)
         {
-            int currentPageNumber = pageNumber ?? 1;
-            int currentPageSize = pageSize ?? 5;
+            int currentPageNumber = filterParams.PageNumber ?? 1;
+            int currentPageSize = filterParams.PageSize ?? 5;
 
             var lProduct = await _unitOfWork.ProductsRepository.GetAllProducts();
 
-            lProduct = _unitOfWork.ProductsRepository.SortListProducts(sort, lProduct);
+            lProduct = _unitOfWork.ProductsRepository.SortListProducts(filterParams.Sort, lProduct);
 
-            var lProductDTO = _mapper.Map<List<Product>, List<ProductDTO>>(lProduct.ToList());
-
-            var response = new
+            var response = new ResponseJSON<Product>
             {
-                totalPage = lProductDTO.Count(),
-                data = lProductDTO.Skip((currentPageNumber - 1) * currentPageSize).Take(currentPageSize).ToList()
+                TotalPage = lProduct.Count(),
+                Data = lProduct.Skip((currentPageNumber - 1) * currentPageSize).Take(currentPageSize).ToList()
             };
 
             return Ok(response);
@@ -159,56 +159,62 @@ namespace aspnet_core_web_api.Controllers
             }
         }
 
-        [HttpGet("[action]")]
-        public IActionResult SearchProductByNameOrCategory(string name, string category)
-        {
-            var lProduct =  _unitOfWork.ProductsRepository.SearchProductByNameOrCategory(name,category);
-            if (lProduct == null)
-            {
-                return NotFound();
-            }
-            return Ok(lProduct); 
-        }
+
+        //[HttpGet("[action]")]
+        //public async Task<IActionResult> SearchProduct(int? pageNumber, int? pageSize, [FromQuery] int[] idCategories, string search, string sort = null)
+        //{
+        //    int currentPageNumber = pageNumber ?? 1;
+        //    int currentPageSize = pageSize ?? 5;
+        //    IQueryable<Product> lProductItems;
+
+        //    if (idCategories.Length == _unitOfWork.CategoriesRepository.GetLength() || idCategories.Count() == 0)
+        //    {
+        //        lProductItems = await _unitOfWork.ProductsRepository.GetAllProducts();
+        //    }
+        //    else 
+        //    {
+        //        lProductItems = _unitOfWork.Products_CategoriesRepository.GetProductsByCategoriesID(idCategories);
+        //    }
+
+        //    var lProduct = _unitOfWork.ProductsRepository.SearchProductOfProductItems(search, lProductItems);
+
+        //    lProduct = _unitOfWork.ProductsRepository.SortListProducts(sort, lProduct);
+
+        //    var lProductDTO = _mapper.Map<List<Product>, List<ProductDTO>>(lProduct.ToList());
+
+        //    var response = new
+        //    {
+        //        totalPage = lProductDTO.Count(),
+        //        data = lProductDTO.Skip((currentPageNumber - 1) * currentPageSize).Take(currentPageSize).ToList()
+        //    };
+
+        //    return Ok(response);
+        //}
 
         [HttpGet("[action]")]
-        public IActionResult QueryProductByPriceRange(double min, double max)
+        public async Task<IActionResult> FilterProduct([FromQuery] FilterParamsProduct filterParams)
         {
-            if (min > max || min < 0)
-                return BadRequest();
-            List<Product> lProduct = _unitOfWork.ProductsRepository.QueryProductByPriceRange(min, max);
-            if (lProduct == null)
-            {
-                return NotFound();
-            }
-            return Ok(lProduct);
-        }
-
-        [HttpGet("[action]")]
-        public async Task<IActionResult> SearchProduct(int? pageNumber, int? pageSize, [FromQuery] int[] idCategories, string search, string sort = null)
-        {
-            int currentPageNumber = pageNumber ?? 1;
-            int currentPageSize = pageSize ?? 5;
+            int currentPageNumber = filterParams.PageNumber ?? 1;
+            int currentPageSize = filterParams.PageSize ?? 5;
             IQueryable<Product> lProductItems;
 
-            if (idCategories.Length == _unitOfWork.CategoriesRepository.GetLength() || idCategories.Count() == 0)
+            if (filterParams.IdCategories.Count() != 0 || filterParams.IdCategories.Count() != _unitOfWork.CategoriesRepository.Count())
+            {
+                lProductItems = _unitOfWork.Products_CategoriesRepository.GetProductsByCategoriesID(filterParams.IdCategories);
+            }
+            else
             {
                 lProductItems = await _unitOfWork.ProductsRepository.GetAllProducts();
             }
-            else 
+
+            lProductItems = _unitOfWork.ProductsRepository.FilterProduct(filterParams, lProductItems);
+
+            var lProduct = _unitOfWork.ProductsRepository.SortListProducts(filterParams.Sort, lProductItems);
+
+            var response = new ResponseJSON<Product>
             {
-                lProductItems = _unitOfWork.Products_CategoriesRepository.GetProductsByCategoriesID(idCategories);
-            }
-
-            var lProduct = _unitOfWork.ProductsRepository.SearchProductOfProductItems(search, lProductItems);
-
-            lProduct = _unitOfWork.ProductsRepository.SortListProducts(sort, lProduct);
-
-            var lProductDTO = _mapper.Map<List<Product>, List<ProductDTO>>(lProduct.ToList());
-
-            var response = new
-            {
-                totalPage = lProductDTO.Count(),
-                data = lProductDTO.Skip((currentPageNumber - 1) * currentPageSize).Take(currentPageSize).ToList()
+                TotalPage = lProduct.Count(),
+                Data = lProduct.Skip((currentPageNumber - 1) * currentPageSize).Take(currentPageSize).ToList()
             };
 
             return Ok(response);

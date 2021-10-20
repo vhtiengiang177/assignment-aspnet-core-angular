@@ -1,4 +1,5 @@
-﻿using aspnet_core_web_api.Data;
+﻿using Infrastructure.Persistent;
+using Infrastructure.Persistent.UnitOfWork;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,16 +15,16 @@ namespace aspnet_core_web_api.Controllers
     [ApiController]
     public class CategoriesController : ControllerBase
     {
-        UnitOfWork.UnitOfWork _unitOfWork;
+        private UnitOfWork _unitOfWork;
         public CategoriesController(DataDbContext dataDbContext)
         {
-            _unitOfWork = new UnitOfWork.UnitOfWork(dataDbContext);
+            _unitOfWork = new UnitOfWork(dataDbContext);
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllCategories()
+        public IActionResult GetAllCategories()
         {
-            var lCategories = await _unitOfWork.CategoriesRepository.GetAllCategories();
+            var lCategories = _unitOfWork.CategoriesRepository.Get();
 
             return Ok(lCategories);
         }

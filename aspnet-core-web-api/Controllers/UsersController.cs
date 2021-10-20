@@ -1,5 +1,6 @@
-﻿using aspnet_core_web_api.Data;
-using aspnet_core_web_api.Models;
+﻿using Domain.Entity;
+using Infrastructure.Persistent;
+using Infrastructure.Persistent.UnitOfWork;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -13,10 +14,10 @@ namespace aspnet_core_web_api.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        UnitOfWork.UnitOfWork _unitOfWork;
+        UnitOfWork _unitOfWork;
         public UsersController(DataDbContext dataDbContext)
         {
-            _unitOfWork = new UnitOfWork.UnitOfWork(dataDbContext);
+            _unitOfWork = new UnitOfWork(dataDbContext);
         }
 
         [HttpGet]

@@ -1,0 +1,144 @@
+.input-search {
+    font-size: 14px !important;
+}
+
+.card-center {
+  text-align: center;
+  padding-top: 15px;
+}
+
+.icon-size {
+  font-size: 120%;
+}
+
+.searchFilter-center{
+  display: flex;
+  justify-content: center;
+}
+
+.example-additional-selection {
+  opacity: 0.75;
+  font-size: 0.75em;
+}
+
+.input-group{
+  flex: none !important;
+  width: 500px !important;
+}
+
+.searchFilter {
+    margin-bottom: 20px;    
+  }
+   .searchFilter.btn{
+      display: inline-block;
+      font-weight: 400;
+      line-height: 1.25;
+      text-align: center;
+      white-space: nowrap;
+      vertical-align: middle;
+      cursor: pointer;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      border: 1px solid transparent;
+      padding: .5rem 1rem;
+      border-radius: .25rem;
+      height: 50px;
+      min-width: 10px;
+  }
+  .searchFilter .btn-secondary {
+      color: #373a3c;
+      background-color: #fff;
+      border: 1px solid #ccc;
+  }
+  .searchFilter .btn-secondary:hover {
+      color: #373a3c;
+      background-color: #e6e6e6;
+      border-color: #adadad;
+  }
+  .searchFilter .btn-search {
+    background-color: #0093c9;
+    color: #fff;
+    border: 1px solid #0093c9;
+    font-size: 14px !important;
+  }
+  .searchFilter .btn-search:hover {
+    background-color: #b3ebff;
+    color: #000;
+    border: 1px solid #b3ebff;
+  }
+  .searchFilter .label-icon {
+    display: none;  
+  }
+
+  @media (max-width: 1400px) {
+    .ct-header-slider .item {
+      background-size:contain;
+      background-repeat: no-repeat;
+      background-position: center top;
+    }  
+  }
+  @media (min-width: 769px) and (max-width: 1400px) {
+    .ct-header-slider .item {
+      height: auto;  
+    }
+  }
+  @media (max-width: 1260px) {
+    #dots-container {
+      display: none;
+    }
+  }
+  @media (min-width: 992px){
+    .ct-footer2 .ct-newsletter {
+      max-width: 100%;
+    }
+    #dots-container {
+      bottom: 100px;
+    } 
+  }
+  @media (min-width: 768px){
+    .ct-searchbar:before {
+      height: 92px;
+      bottom: -1px;
+    }
+    .page-scrolled .navbar .navbar-nav li > * {
+      min-height: 67px;
+      height: 67px;
+    }
+    .page-scrolled .navbar .navbar-nav {
+      height: 100%!important;
+    }
+    .ct-current-facts h2 {
+      margin: 0 auto 0px;
+    }
+    .contentNews .ct-recent-news {
+      flex-direction: inherit;
+    }
+    .contentFaq .faq_question .col-sm-11 {
+      padding-right: 0px;
+    }
+    .peopleDetail h2 {
+      margin-top: -5px;
+    }
+    .searchFilter .btn {
+      min-width: 120px;  
+    }
+    .searchFilter .label-icon {
+      display: inline-block;  
+    }
+    .searchFilter .glyphicon {
+      margin-right: -5px;
+    }
+    .ct-header .ct-jumbotron {
+      top: 0;
+      margin-top: 5%;
+    }
+    .ct-header .ct-jumbotron h1 {
+      font-size: 2.5em;
+    }
+    .ct-news.ct-news--bigger h3 {
+      font-size: 41px;
+      line-height: 1.4;
+    }
+  }

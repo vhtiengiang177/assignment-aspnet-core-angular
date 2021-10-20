@@ -1,12 +1,12 @@
 import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { JwtHelperService } from '@auth0/angular-jwt';
-import { Observable, throwError } from 'rxjs';
+import { throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { AppError } from 'src/app/common/app-error';
-import { BadRequestError } from 'src/app/common/bad-request';
-import { GlobalConstants } from 'src/app/common/global-constants';
-import { NotFoundError } from 'src/app/common/not-found-error';
+import { GlobalConstants } from 'src/app/_shared/constants/global-constants';
+import { AppError } from 'src/app/_shared/errors/app-error';
+import { NotFoundError } from 'src/app/_shared/errors/not-found-error';
+import { FilterParamsProduct } from '../model/filter-params-product.model';
 
 @Injectable({
   providedIn: 'root'
@@ -15,19 +15,9 @@ export class DataService {
 
   constructor(protected routeAPI: string, protected http: HttpClient) { }
 
-  getAll(pageNumber, pageSize, sort) {
-    let params = new HttpParams();
-
-    if(pageNumber != null)
-      params = params.set('pageNumber', pageNumber);
-    if(pageSize != null)
-      params = params.set('pageSize', pageSize);
-    if(sort != null)
-      params = params.set("sort", sort);
-
+  get() {
     return this.http.get<any>(GlobalConstants.apiUrl + this.routeAPI, { 
-                      headers: this.authorizationHeader(), 
-                      params: params 
+                      headers: this.authorizationHeader()
                     })
                     .pipe(catchError((error:Response) => {
                       return throwError(new AppError(error));

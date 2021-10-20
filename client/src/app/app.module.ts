@@ -3,28 +3,29 @@ import { ErrorHandler, NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http'
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { NavMenuComponent } from './nav-menu/nav-menu/nav-menu.component';
-import { LoginComponent } from './login/login/login.component';
-import { HomeComponent } from './home/home/home.component';
-import { ProductsListComponent } from './products-list/products-list.component';
+import { NavMenuComponent } from './modules/layout/nav-menu/nav-menu.component';
+import { LoginComponent } from './modules/authentication/login/login.component';
+import { HomeComponent } from './modules/layout/home/home.component';
+import { ProductsListComponent } from './modules/products/products-list/products-list.component';
 import { RouterModule } from '@angular/router';
-import { NoAccessComponent } from './no-access/no-access/no-access.component';
-import { NotFoundComponent } from './not-found/not-found/not-found.component';
+import { NoAccessComponent } from './_shared/components/no-access/no-access.component';
+import { NotFoundComponent } from './_shared/components/not-found/not-found.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AuthGuard } from './services/auth-guard/auth-guard.service';
 import { ActivatedLogin } from './services/activated-login/activated-login.service';
 import { AuthService } from './services/auth/auth.service';
-import { SearchProductComponent } from './search-product/search-product/search-product.component';
+import { SearchProductComponent } from './modules/products/search-product/search-product.component';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
-import { MatDialogModule, MatFormFieldModule, MatInputModule, MatSelectModule } from '@angular/material';
-import { FormProductComponent } from './form-product/form-product/form-product.component';
+import { MatDialogModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatNativeDateModule } from '@angular/material';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { AppErrorHandling } from './common/app-error-handling';
-import { DeleteProductComponent } from './delete-product/delete-product/delete-product.component';
-import { DetailProductComponent } from './detail-product/detail-product/detail-product.component';
-import { DeleteFormComponent } from './products/delete-form/delete-form/delete-form.component';
+import { AppErrorHandling } from './_shared/errors/app-error-handling';
+import { DateValueAccessorModule } from 'angular-date-value-accessor';
+import {MatDatepickerModule} from '@angular/material/datepicker';
+import { FormProductComponent } from './modules/products/form-product/form-product.component';
+import { DetailProductComponent } from './modules/products/detail-product/detail-product.component';
+import { DeleteFormComponent } from './modules/products/delete-form/delete-form.component';
 
 @NgModule({
   declarations: [
@@ -37,7 +38,6 @@ import { DeleteFormComponent } from './products/delete-form/delete-form/delete-f
     NotFoundComponent,
     SearchProductComponent,
     FormProductComponent,
-    DeleteProductComponent,
     DetailProductComponent,
     DeleteFormComponent
   ],
@@ -56,7 +56,10 @@ import { DeleteFormComponent } from './products/delete-form/delete-form/delete-f
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
     FontAwesomeModule,
+    DateValueAccessorModule,
     RouterModule.forRoot([
       { path: '', component: HomeComponent },
       { 
@@ -72,7 +75,8 @@ import { DeleteFormComponent } from './products/delete-form/delete-form/delete-f
       { path: 'not-found', component: NotFoundComponent },
       {
         path: 'products/:id',
-        component: DetailProductComponent
+        component: DetailProductComponent,
+        canActivate: [AuthGuard]
       }
     ]),
     BrowserAnimationsModule,

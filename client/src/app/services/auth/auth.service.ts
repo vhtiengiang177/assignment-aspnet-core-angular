@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { map } from 'rxjs/operators';
 import { JwtHelperService } from "@auth0/angular-jwt";
-import { GlobalConstants } from 'src/app/common/global-constants';
+import { GlobalConstants } from 'src/app/_shared/constants/global-constants';
 
 @Injectable({
   providedIn: 'root'
