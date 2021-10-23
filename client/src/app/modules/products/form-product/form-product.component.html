@@ -19,15 +19,15 @@
     <div class="form-group custom-form">
         <mat-form-field appearance="fill" class="col-md-8">
             <mat-label>Release Date</mat-label>
-            <input [(ngModel)]="data.product.releaseDate" matInput [matDatepicker]="releasepicker">
+            <input [(ngModel)]="data.product.releaseDate" matInput [matDatepicker]="releasepicker" (dateChange)="checkReleaseDate()">
             <mat-datepicker-toggle matSuffix [for]="releasepicker"></mat-datepicker-toggle>
             <mat-datepicker #releasepicker></mat-datepicker>
         </mat-form-field>
     </div>
     <div class="form-group custom-form">
         <mat-form-field appearance="fill" class="col-md-8">
-            <mat-label>Release Date</mat-label>
-            <input [(ngModel)]="data.product.discontinuedDate" matInput [matDatepicker]="discontinuedpicker">
+            <mat-label>Discontinued Date</mat-label>
+            <input [(ngModel)]="data.product.discontinuedDate" matInput [matDatepicker]="discontinuedpicker" (dateChange)="checkDiscontinuedDate()">
             <mat-datepicker-toggle matSuffix [for]="discontinuedpicker"></mat-datepicker-toggle>
             <mat-datepicker #discontinuedpicker></mat-datepicker>
         </mat-form-field>
@@ -35,16 +35,12 @@
     <div class="form-group custom-form">
         <mat-form-field appearance="fill" class="col-md-8">
             <mat-label>Rating</mat-label>
-            <input [(ngModel)]="data.product.rating" 
-                    #rating="ngModel"
-                    matInput 
-                    type="number" 
-                    min="0" 
-                    max="5" 
-                    required>
-            <mat-error class="error-required" *ngIf="rating.touched && rating.invalid && rating.errors?.required">
-                Rating is <strong>required</strong>
-            </mat-error>
+            <mat-select [(ngModel)]="data.product.rating" #selectRating name="rating" required>
+                <mat-select-trigger>
+                {{ data.product.rating }}
+                </mat-select-trigger>
+                <mat-option *ngFor="let item of ratingOption" [value]="item">{{ item }}</mat-option>
+            </mat-select>
         </mat-form-field>
     </div>
     <div class="form-group custom-form">
@@ -54,6 +50,7 @@
                     #price="ngModel"
                     matInput 
                     type="number" 
+                    (change)="checkPrice()"
                     required>
             <mat-error class="error-required" *ngIf="price.touched && price.invalid && price.errors?.required">
                 Price is <strong>required</strong>
@@ -78,8 +75,7 @@
     <div class="form-group custom-form">
         <mat-form-field appearance="fill" class="col-md-8">
             <mat-label>Supplier</mat-label>
-            <mat-select [(ngModel)]="data.product.supplierID" [compareWith]="compareSupplier" #selectSupplier="ngModel" name="supplier" required>
-                <mat-option>None</mat-option>
+            <mat-select [(ngModel)]="data.product.supplierID" [compareWith]="compareSupplier" #selectSupplier="ngModel" name="supplier" >
                 <mat-option (click)="selectedSupplier(supplier)" *ngFor="let supplier of suppliersStore.suppliers$ | async" [value]="supplier.id">{{supplier.name}}</mat-option>
             </mat-select>
             <mat-error class="error-required" *ngIf="selectSupplier.touched && selectSupplier.invalid && selectSupplier.errors?.required">

@@ -1,6 +1,7 @@
 <div class="searchFilter searchFilter-center">
     <div class="input-group" >
         <input id="table_filter" 
+                [(ngModel)]="search"
                 #searchInput 
                 type="text" 
                 class="form-control input-search"> &nbsp; 
@@ -57,16 +58,25 @@
         </div>
         <div class="form-group col-md-3">
             <mat-form-field>
-                <mat-label>Min Price</mat-label>
+                <mat-label>Min Price (đ)</mat-label>
                 <input matInput type="number" min="0" [(ngModel)]="minPrice" (change)="checkMinPrice()">
             </mat-form-field>
         </div>
         <div class="form-group col-md-3">
             <mat-form-field>
-                <mat-label>Max Price</mat-label>
+                <mat-label>Max Price (đ)</mat-label>
                 <input matInput type="number" min="0" [(ngModel)]="maxPrice" (change)="checkMaxPrice()" >
             </mat-form-field>
         </div>
+        <div class="div-reset">
+            <button name="resetBtn" 
+            type="button" 
+            class="btn btn-reset"
+            (click)="reset()" >
+                <fa-icon class="icon-size" [icon]="faSync"></fa-icon>
+            </button>
+        </div>
     </div>
+
 </div>
 

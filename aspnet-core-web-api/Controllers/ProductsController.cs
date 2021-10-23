@@ -17,7 +17,7 @@ using Domain.Values;
 
 namespace aspnet_core_web_api.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ProductsController : ControllerBase
@@ -34,12 +34,39 @@ namespace aspnet_core_web_api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllProducts([FromQuery] FilterParamsProduct filterParams)
         {
+            //int currentPageNumber = filterParams.PageNumber ?? 1;
+            //int currentPageSize = filterParams.PageSize ?? 5;
+
+            //var lProduct = await _unitOfWork.ProductsRepository.GetAllProducts();
+
+            //lProduct = _unitOfWork.ProductsRepository.SortListProducts(filterParams.Sort, lProduct);
+
+            //var response = new ResponseJSON<Product>
+            //{
+            //    TotalPage = lProduct.Count(),
+            //    Data = lProduct.Skip((currentPageNumber - 1) * currentPageSize).Take(currentPageSize).ToList()
+            //};
+
+            //return Ok(response);
+
             int currentPageNumber = filterParams.PageNumber ?? 1;
             int currentPageSize = filterParams.PageSize ?? 5;
+            IQueryable<Product> lProductItems;
 
-            var lProduct = await _unitOfWork.ProductsRepository.GetAllProducts();
+            if(filterParams.IdCategories != null)
+            {
+                if (filterParams.IdCategories.Count() != 0 || filterParams.IdCategories.Count() != _unitOfWork.CategoriesRepository.Count())
+                {
+                    lProductItems = _unitOfWork.Products_CategoriesRepository.GetProductsByCategoriesID(filterParams.IdCategories);
+                }
+                else lProductItems = await _unitOfWork.ProductsRepository.GetAllProducts();
+            }
+            else lProductItems = await _unitOfWork.ProductsRepository.GetAllProducts();
 
-            lProduct = _unitOfWork.ProductsRepository.SortListProducts(filterParams.Sort, lProduct);
+
+            lProductItems = _unitOfWork.ProductsRepository.FilterProduct(filterParams, lProductItems);
+
+            var lProduct = _unitOfWork.ProductsRepository.SortListProducts(filterParams.Sort, lProductItems);
 
             var response = new ResponseJSON<Product>
             {
@@ -51,9 +78,9 @@ namespace aspnet_core_web_api.Controllers
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetAProduct(int id)
+        public IActionResult GetProductByID(int id)
         {
-            var product = _unitOfWork.ProductsRepository.GetAProduct(id);
+            var product = _unitOfWork.ProductsRepository.GetProductByID(id);
             if (product == null)
             {
                 return NotFound();
@@ -77,9 +104,9 @@ namespace aspnet_core_web_api.Controllers
             if (ModelState.IsValid)
             {
                 var result = _unitOfWork.ProductsRepository.CreateProduct(product);
-                _unitOfWork.Save();
                 try
                 {
+                    _unitOfWork.Save();
                     Product_Category pcObj = new Product_Category();
                     pcObj.ProductID = result.ID;
                     for (int i = 0; i < idCategories.Count(); i++)
@@ -143,7 +170,7 @@ namespace aspnet_core_web_api.Controllers
         {
             try
             {
-                var product = _unitOfWork.ProductsRepository.GetAProduct(id);
+                var product = _unitOfWork.ProductsRepository.GetProductByID(id);
 
                 if (product == null)
                     return NotFound();
@@ -159,38 +186,6 @@ namespace aspnet_core_web_api.Controllers
             }
         }
 
-
-        //[HttpGet("[action]")]
-        //public async Task<IActionResult> SearchProduct(int? pageNumber, int? pageSize, [FromQuery] int[] idCategories, string search, string sort = null)
-        //{
-        //    int currentPageNumber = pageNumber ?? 1;
-        //    int currentPageSize = pageSize ?? 5;
-        //    IQueryable<Product> lProductItems;
-
-        //    if (idCategories.Length == _unitOfWork.CategoriesRepository.GetLength() || idCategories.Count() == 0)
-        //    {
-        //        lProductItems = await _unitOfWork.ProductsRepository.GetAllProducts();
-        //    }
-        //    else 
-        //    {
-        //        lProductItems = _unitOfWork.Products_CategoriesRepository.GetProductsByCategoriesID(idCategories);
-        //    }
-
-        //    var lProduct = _unitOfWork.ProductsRepository.SearchProductOfProductItems(search, lProductItems);
-
-        //    lProduct = _unitOfWork.ProductsRepository.SortListProducts(sort, lProduct);
-
-        //    var lProductDTO = _mapper.Map<List<Product>, List<ProductDTO>>(lProduct.ToList());
-
-        //    var response = new
-        //    {
-        //        totalPage = lProductDTO.Count(),
-        //        data = lProductDTO.Skip((currentPageNumber - 1) * currentPageSize).Take(currentPageSize).ToList()
-        //    };
-
-        //    return Ok(response);
-        //}
-
         [HttpGet("[action]")]
         public async Task<IActionResult> FilterProduct([FromQuery] FilterParamsProduct filterParams)
         {
@@ -198,14 +193,12 @@ namespace aspnet_core_web_api.Controllers
             int currentPageSize = filterParams.PageSize ?? 5;
             IQueryable<Product> lProductItems;
 
-            if (filterParams.IdCategories.Count() != 0 || filterParams.IdCategories.Count() != _unitOfWork.CategoriesRepository.Count())
+            if (filterParams.IdCategories != null && (filterParams.IdCategories.Count() != 0 || filterParams.IdCategories.Count() != _unitOfWork.CategoriesRepository.Count()))
             {
                 lProductItems = _unitOfWork.Products_CategoriesRepository.GetProductsByCategoriesID(filterParams.IdCategories);
             }
-            else
-            {
-                lProductItems = await _unitOfWork.ProductsRepository.GetAllProducts();
-            }
+            else lProductItems = await _unitOfWork.ProductsRepository.GetAllProducts();
+
 
             lProductItems = _unitOfWork.ProductsRepository.FilterProduct(filterParams, lProductItems);
 

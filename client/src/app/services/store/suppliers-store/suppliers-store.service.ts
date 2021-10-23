@@ -28,7 +28,7 @@ export class SuppliersStoreService {
     await this.supplierService.get()
             .subscribe(res => this.suppliers = res,
               () => {
-                this.toastr.error("An unexpected error occurred.")
+                this.toastr.error("An unexpected error occurred.", "List Suppliers")
               });
   }
 }

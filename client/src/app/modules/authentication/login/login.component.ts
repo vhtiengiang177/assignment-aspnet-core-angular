@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
@@ -27,8 +28,10 @@ export class LoginComponent implements OnInit {
           this.router.navigate([returnUrl || '/']);
         }
         else this.invalidLogin = true;
+      }, (error: HttpErrorResponse) => {
+        this.toastr.error(error.error);
+        
       });
     }
-    else this.toastr.error("Invalid username or password");
   }
 }

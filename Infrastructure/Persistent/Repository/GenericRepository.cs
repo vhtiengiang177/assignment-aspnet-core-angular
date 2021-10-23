@@ -80,7 +80,6 @@ namespace Infrastructure.Persistent.Repository
 
         public int Count()
         {
-
             return dbSet.Count<TEntity>();
         }
     }

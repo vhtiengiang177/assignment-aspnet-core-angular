@@ -28,12 +28,7 @@ export class DetailProductComponent implements OnInit {
       this.productStore.getProduct(param['id']).subscribe(res => {
         this.response = res;
         this.supplierName = this.supplierStore.suppliers.filter(s => s.id == this.response.product.supplierID).pop().name
-        this.categories = this.response.categories;
-        
-      }, (error: AppError) => {
-        if(error instanceof NotFoundError) {
-          this.router.navigate(['/not-found'])
-        }
+        this.categories = this.response.categories; 
       })
     });
   }

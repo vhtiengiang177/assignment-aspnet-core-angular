@@ -24,9 +24,9 @@ namespace Infrastructure.Persistent.Repository
             return lProduct.AsQueryable();
         }
 
-        public Product GetAProduct(int productID)
+        public Product GetProductByID(int productID)
         {
-            return _dbContext.Products.Find(productID);
+            return _dbContext.Products.FirstOrDefault(p => p.ID == productID);
         }
 
         public Product CreateProduct(Product product)
@@ -77,47 +77,22 @@ namespace Infrastructure.Persistent.Repository
             return lProduct;
         }
 
-        //public List<Product> SearchProductByNameOrCategory(string name, string category)
-        //{
-        //    List<Product> lProduct = new List<Product>();
-        //    if(!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(category))
-        //    {
-        //        var lProductItem = _dbContext.Product_Categories
-        //                            .Where(pc => pc.Category.Name.Contains(category) && pc.Product.Name.Contains(name))
-        //                            .Select(s => s.Product).ToList();
-        //        lProduct = lProductItem.GroupBy(gb => gb.ID).Select(s => s.First()).ToList();
-        //    }
-        //    else if (!string.IsNullOrEmpty(category))
-        //    {
-        //        var lProductItem = _dbContext.Product_Categories
-        //                .Where(pc => pc.Category.Name.Contains(category))
-        //                .Select(s => s.Product).ToList();
-        //        lProduct = lProductItem.GroupBy(gb => gb.ID).Select(s => s.First()).ToList();
-        //    }
-        //    else
-        //    {
-        //        lProduct = _dbContext.Products.Where(p => p.Name.Contains(name)).ToList();
-        //    }
-        //    return lProduct;
-        //}
-
-
-        //public IQueryable<Product> SearchProductOfProductItems(string search, IQueryable<Product> lProductItems)
-        //{
-        //    return lProductItems.Where(p => p.Name.Contains(search)).AsQueryable();
-        //}
-
         public IQueryable<Product> FilterProduct(FilterParamsProduct searchParams, IQueryable<Product> lProductItems)
         {
             if (searchParams.MinPrice.HasValue)
                 lProductItems = lProductItems.Where(x => x.Price >= searchParams.MinPrice);
+
             if (searchParams.MaxPrice.HasValue)
                 lProductItems = lProductItems.Where(x => x.Price <= searchParams.MaxPrice);
-            if (searchParams.Rating.Count() != 0 && searchParams.Rating.Count() != 5)
+
+            if (searchParams.Rating != null && searchParams.Rating.Count() != 0 && searchParams.Rating.Count() != 5)
                 lProductItems = lProductItems.Where(x => searchParams.Rating.Contains(x.Rating));
 
-            return lProductItems.Where(p => p.Name.Contains(searchParams.Content)
-                || p.Price.ToString().Contains(searchParams.Content)).AsQueryable();
+            if (searchParams.Content != null)
+                lProductItems = lProductItems.Where(p => p.Name.Contains(searchParams.Content)
+                || p.Price.ToString().Contains(searchParams.Content));
+
+            return lProductItems.AsQueryable();
         }
 
         protected virtual void Dispose(bool disposing)

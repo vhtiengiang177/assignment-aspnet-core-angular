@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace aspnet_core_web_api.Migrations
 {
     [DbContext(typeof(DataDbContext))]
-    [Migration("20211020125002_InitialCreated")]
-    partial class InitialCreated
+    [Migration("20211023065409_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -89,7 +89,7 @@ namespace aspnet_core_web_api.Migrations
                     b.Property<DateTime>("ReleaseDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("SupplierID")
+                    b.Property<int?>("SupplierID")
                         .HasColumnType("int");
 
                     b.HasKey("ID");
@@ -386,8 +386,7 @@ namespace aspnet_core_web_api.Migrations
                     b.HasOne("Domain.Entity.Supplier", "Supplier")
                         .WithMany("Products")
                         .HasForeignKey("SupplierID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Supplier");
                 });

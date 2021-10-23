@@ -87,7 +87,7 @@ namespace aspnet_core_web_api.Migrations
                     b.Property<DateTime>("ReleaseDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("SupplierID")
+                    b.Property<int?>("SupplierID")
                         .HasColumnType("int");
 
                     b.HasKey("ID");
@@ -384,8 +384,7 @@ namespace aspnet_core_web_api.Migrations
                     b.HasOne("Domain.Entity.Supplier", "Supplier")
                         .WithMany("Products")
                         .HasForeignKey("SupplierID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Supplier");
                 });

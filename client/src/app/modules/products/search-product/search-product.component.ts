@@ -3,7 +3,7 @@ import { MatOption, MatSelect } from '@angular/material';
 import { CategoriesStoreService } from 'src/app/services/store/categories-store/categories-store.service';
 import { Category } from 'src/app/services/model/category.model';
 import { SearchAdvance } from 'src/app/services/model/search-advance.model';
-import { faSearch, faChevronCircleDown, faChevronCircleUp } from '@fortawesome/free-solid-svg-icons';
+import { faSearch, faChevronCircleDown, faChevronCircleUp, faSync } from '@fortawesome/free-solid-svg-icons';
 import { FilterParamsProduct } from 'src/app/services/model/filter-params-product.model';
 
 @Component({
@@ -16,11 +16,13 @@ export class SearchProductComponent implements OnInit {
   @ViewChild('selectRating', {static:false}) selectRating: MatSelect;
   @Input('post-per-page') postPerPage : number;
   @Output('search-event') searchEvent = new EventEmitter<FilterParamsProduct>();
+  @Output('reset-event') resetEvent = new EventEmitter();
 
   isAdvance: boolean = false;
   isAllCategories : boolean = false;
   isAllRating: boolean = false;
   isSearchInputNull : boolean;
+  search: string;
   categories: Category[] = [];
   ratingOption: number[] = [];
   rating: number[] = [];
@@ -29,6 +31,7 @@ export class SearchProductComponent implements OnInit {
   fasearch = faSearch;
   facircledown = faChevronCircleDown;
   facircleup = faChevronCircleUp;
+  faSync = faSync;
 
   constructor(private categoriesStore: CategoriesStoreService) { 
     this.ratingOption = [1,2,3,4,5]
@@ -112,24 +115,38 @@ export class SearchProductComponent implements OnInit {
   }
 
   searchProduct(searchInput) {
-    let searchAdvanceObj: FilterParamsProduct = {};
-    searchAdvanceObj.content = searchInput;
+    let filterParams: FilterParamsProduct = {};
+    
     if(this.isAdvance) {
       let idCategories : number[] = [];
       this.categories.filter(k=>k.id != 0).forEach(element => {
         idCategories.push(element.id)
       });
-      // searchAdvanceObj.idcategories = idCategories;
-      // searchAdvanceObj.rating = this.rating.filter(r => r != 0)
-      searchAdvanceObj = {
+      
+      filterParams = {
         idcategories: idCategories,
         rating: this.rating.filter(r => r != 0),
         minprice: this.minPrice,
         maxprice: this.maxPrice,
         content: searchInput
       }
+      this.searchEvent.emit(filterParams);
     }
-    this.searchEvent.emit(searchAdvanceObj);
+    else if(searchInput) {
+      filterParams = {
+        content: searchInput
+      }
+      this.searchEvent.emit(filterParams);
+    }
+  }
+
+  reset() {
+    this.categories = [];
+    this.rating = [];
+    this.minPrice = null;
+    this.maxPrice = null;
+
+    this.resetEvent.emit();
   }
 
 }

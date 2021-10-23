@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { AppError } from 'src/app/_shared/errors/app-error';
@@ -19,8 +20,11 @@ export class ProductsStoreService {
   readonly products$ = this._products.asObservable();
 
   private readonly _totalPage = new BehaviorSubject<number>(0);
+  readonly totalPage$ = this._totalPage.asObservable();
 
-  constructor(private productService: ProductService, private toastr: ToastrService){
+  constructor(private productService: ProductService, 
+    private toastr: ToastrService,
+    private router: Router){
     if(this.products.length == 0) {
       let filter: FilterParamsProduct = {};
       this.getAll(filter);
@@ -50,7 +54,7 @@ export class ProductsStoreService {
                 this.totalPage = res.totalPage;
               } ,
               () => {
-                this.toastr.error("An unexpected error occurred.")
+                this.toastr.error("An unexpected error occurred.", "List Products")
               });
   }
 
@@ -78,7 +82,7 @@ export class ProductsStoreService {
     }, (error: AppError) => {
       if(error instanceof BadRequestError)
         return this.toastr.error("Add product failed")
-      else throw error
+      else this.toastr.error("An unexpected error occurred.", "Add Product")
     });
     return result.asObservable();
   }
@@ -87,9 +91,9 @@ export class ProductsStoreService {
     let result = new Subject<any>();
     this.productService.getObject(idProduct).subscribe(res => result.next(res),
     (error:AppError) => {
-      if(error instanceof NotFoundError)
-        this.toastr.error("Not found")
-      else throw error
+      if(error instanceof NotFoundError) {
+        this.router.navigate(['/not-found'])
+      }
     })
     return result.asObservable();
   }

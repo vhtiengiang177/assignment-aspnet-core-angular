@@ -29,7 +29,7 @@ export class CategoriesStoreService {
     await this.categoryService.get()
             .subscribe(res => this.categories = res,
               () => {
-                this.toastr.error("An unexpected error occurred.")
+                this.toastr.error("An unexpected error occurred.", "List Categories")
               });
   }
 }

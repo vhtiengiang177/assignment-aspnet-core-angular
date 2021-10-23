@@ -19,7 +19,7 @@ namespace Domain.Entity
         public Int16 Rating { get; set; }
         [Required]
         public Double Price { get; set; }
-        public int SupplierID { get; set; }
+        public int? SupplierID { get; set; }
         public virtual Supplier Supplier { get; set; }
         public virtual ProductDetail ProductDetail { get; set; }
         public virtual IList<Product_Category> Product_Categories { get; set; }

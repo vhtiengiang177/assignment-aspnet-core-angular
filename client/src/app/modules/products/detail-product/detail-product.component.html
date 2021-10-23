@@ -88,8 +88,11 @@
                 <div class="col-md-4 title-item">
                     Supplier:
                 </div>
-                <div class="col-md-8">
+                <div *ngIf="supplierName" class="col-md-8">
                     {{ supplierName }}
+                </div>
+                <div *ngIf="!supplierName" class="col-md-8">
+                    N/A
                 </div>
             </div>
         </div>

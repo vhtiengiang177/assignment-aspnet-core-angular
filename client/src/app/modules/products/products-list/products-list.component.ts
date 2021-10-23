@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { MatDialog, PageEvent } from '@angular/material';
+import { Component, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
+import { MatDialog, MatPaginator, PageEvent } from '@angular/material';
 import { SearchAdvance } from '../../../services/model/search-advance.model';
 import { ProductsStoreService } from '../../../services/store/products-store/products-store.service';
 import { ProductService } from '../../../services/product/product.service';
@@ -16,16 +16,13 @@ import { filter } from 'rxjs/operators';
   styleUrls: ['./products-list.component.css']
 })
 export class ProductsListComponent implements OnInit {
-  lengthProduct: number;
+  @ViewChild('paginator', { static: false}) paginator: MatPaginator;
+
   filter: FilterParamsProduct = {
+    pagenumber: 1,
     pagesize: 5,
     sort: null
   };
-  pageSize: number = 5;
-  pageNumber: number;
-  isSort: string = null;
-  isSearch: boolean = false;
-  searchObj: SearchAdvance;
   fasortup = faSortUp;
   fasortdown = faSortDown;
   faedit = faEdit;
@@ -99,32 +96,40 @@ export class ProductsListComponent implements OnInit {
   onPaginate(pageEvent: PageEvent) {
     this.filter.pagesize = +pageEvent.pageSize;
     this.filter.pagenumber = +pageEvent.pageIndex + 1;
-    if(this.isSearch) {
-      this.productsStore.filterProduct(filter)
-    }
-    else {
-      this.productsStore.getAll(this.filter);
-    }
+    this.productsStore.getAll(this.filter);
   }
   
   searchEvent($event) {
-    this.filter.pagenumber = 1;
-    if(!$event.search) {
-      this.isSearch = false;
-      this.productsStore.getAll(this.filter);
-    }
-    else {
-      this.isSearch = true;
-      this.searchObj = $event;
-      this.filter.content = $event.content;
-      this.filter.idcategories = $event.idcategories;
-      this.filter.minprice = $event.minprice;
-      this.filter.maxprice = $event.maxprice;
-      this.filter.rating = $event.rating;
+      this.filter = {
+        pagenumber: 1,
+        pagesize: this.filter.pagesize,
+        sort: this.filter.sort,
+        content: $event.content,
+        idcategories: $event.idcategories,
+        minprice: $event.minprice,
+        maxprice: $event.maxprice,
+        rating: $event.rating
+      }
+
+      this.productsStore.getAll(this.filter)
       
-      this.productsStore.filterProduct(this.filter)
-      //this.productsStore.searchProduct(1, this.pageSize, this.isSort, this.searchObj.idCategories, this.searchObj.search);
+      // this.filter.content = $event.content;
+      // this.filter.idcategories = $event.idcategories;
+      // this.filter.minprice = $event.minprice;
+      // this.filter.maxprice = $event.maxprice;
+      // this.filter.rating = $event.rating;
+      
+      // this.productsStore.filterProduct(this.filter)
+  }
+
+  reloadProduct() {
+    this.filter = {
+      pagenumber: 1,
+      pagesize: this.filter.pagesize,
+      sort: this.filter.sort
     }
+    this.paginator.pageIndex = 0;
+    this.productsStore.getAll(this.filter);
   }
 
   addProduct() {
@@ -136,15 +141,20 @@ export class ProductsListComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(res => {
       if(res) {
-        if(this.isSort === null) {
-          this.productsStore.products.splice(this.pageSize - 1,1);
+        if(this.filter.sort == null && this.filter.pagenumber == 1) {
+          this.productsStore.products.splice(this.filter.pagesize - 1,1);
           this.productsStore.products.splice(0,0,res);
+          this.productsStore.totalPage = this.productsStore.totalPage + 1;
         }
         else {
-          this.filter.pagenumber = 1,
-          this.filter.sort = null
+          this.filter = {
+            pagenumber: 1,
+            pagesize: this.filter.pagesize,
+            sort: null
+          }
           this.productsStore.getAll(this.filter);
         }
+        this.paginator.pageIndex = 0;
       }
     });
   }
@@ -178,7 +188,13 @@ export class ProductsListComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe(() => {
+      let totalStore = this.productsStore.products.length;
+      if(totalStore == 1) {
+        this.filter.pagenumber = this.filter.pagenumber - 1;
+        this.paginator.pageIndex = this.filter.pagenumber - 1;
+      }
       this.productsStore.getAll(this.filter)
     });
+    
   }
 }

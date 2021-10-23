@@ -40,7 +40,7 @@ namespace aspnet_core_web_api.Controllers
                     new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString()),
                     new Claim("id", user.ID.ToString()),
                     new Claim("username", user.Username),
-                    new Claim("isAdmin", "true")
+                    new Claim("isAdmin", user.IsAdmin.ToString())
                 };
 
                 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));

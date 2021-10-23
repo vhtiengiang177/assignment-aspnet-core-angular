@@ -1,36 +1,25 @@
 <div class="form-login">
-    <form class="col-md-3" #form="ngForm" (ngSubmit) = "login(form)">
-        <h3 class="item-center">Login Page</h3>
-        <div class="mb-4">
-            <label class="form-label">Username: </label>
-            <input 
-                ngModel
-                name="username"
-                #username="ngModel"
-                type="text"
-                class="form-control"
-                required>
-            <div class="alert alert-danger" *ngIf="username?.touched && username?.invalid">
-                <div *ngIf="username?.errors?.required">Username is required</div>
+    <div class="col-md-4 form-login-group">
+        <form #form="ngForm" (ngSubmit)="login(form)">
+            <h3 class="item-center">Login Page</h3>
+            <div class="mb-4">
+                <label class="form-label">Username:</label>
+                <input ngModel name="username" #username="ngModel" type="text" class="form-control" required>
+                <div class="alert alert-danger" *ngIf="username?.touched && username?.invalid">
+                    <div *ngIf="username?.errors?.required">Username is required</div>
+                </div>
             </div>
-        </div>
+            <div class="mb-4">
+                <label class="form-label">Password:</label>
+                <input ngModel name="password" type="password" #password="ngModel" class="form-control" required>
+                <div class="alert alert-danger" *ngIf="password?.touched && password?.invalid">
+                    <div *ngIf="password?.errors?.required">Password is required</div>
+                </div>
+            </div>
+            <div class="item-center">
+                <button class="btn btn-login" type="submit">Login</button>
+            </div>
+        </form>
+    </div>
     
-        <div class="mb-4">
-            <label class="form-label">Password: </label>
-            <input 
-                ngModel
-                name = "password"
-                type="password"
-                #password="ngModel"
-                class="form-control"
-                required>
-            <div class="alert alert-danger" *ngIf="password?.touched && password?.invalid">
-                <div *ngIf="password?.errors?.required">Password is required</div>
-            </div>
-        </div>
-        <div class="item-center">
-            <button class="btn btn-primary" type="submit">Login</button>  
-        </div>
-    </form>
 </div>
-

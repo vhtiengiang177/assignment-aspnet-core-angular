@@ -10,7 +10,7 @@ namespace Infrastructure.Persistent.Repository
     public interface IProductsRepository : IDisposable
     {
         Task<IQueryable<Product>> GetAllProducts();
-        Product GetAProduct(int productID);
+        Product GetProductByID(int productID);
         Product CreateProduct(Product product);
         void UpdateProduct(Product product);
         void DeleteProduct(Product product);

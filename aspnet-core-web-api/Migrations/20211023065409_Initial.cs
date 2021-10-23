@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace aspnet_core_web_api.Migrations
 {
-    public partial class InitialCreated : Migration
+    public partial class Initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -61,7 +61,7 @@ namespace aspnet_core_web_api.Migrations
                     DiscontinuedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Rating = table.Column<short>(type: "smallint", nullable: false),
                     Price = table.Column<double>(type: "float", nullable: false),
-                    SupplierID = table.Column<int>(type: "int", nullable: false)
+                    SupplierID = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
