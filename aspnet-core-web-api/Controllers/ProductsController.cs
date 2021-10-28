@@ -1,15 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using System;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
-using AutoMapper;
-using aspnet_core_web_api.DTO;
-using AutoMapper.QueryableExtensions;
 using Infrastructure.Persistent.UnitOfWork;
 using Infrastructure.Persistent;
 using Domain.Entity;
@@ -23,46 +16,30 @@ namespace aspnet_core_web_api.Controllers
     public class ProductsController : ControllerBase
     {
         private UnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
 
-        public ProductsController(DataDbContext dataDbContext, IMapper mapper)
+        public ProductsController(DataDbContext dataDbContext)
         {
             _unitOfWork = new UnitOfWork(dataDbContext);
-            _mapper = mapper;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAllProducts([FromQuery] FilterParamsProduct filterParams)
         {
-            //int currentPageNumber = filterParams.PageNumber ?? 1;
-            //int currentPageSize = filterParams.PageSize ?? 5;
-
-            //var lProduct = await _unitOfWork.ProductsRepository.GetAllProducts();
-
-            //lProduct = _unitOfWork.ProductsRepository.SortListProducts(filterParams.Sort, lProduct);
-
-            //var response = new ResponseJSON<Product>
-            //{
-            //    TotalPage = lProduct.Count(),
-            //    Data = lProduct.Skip((currentPageNumber - 1) * currentPageSize).Take(currentPageSize).ToList()
-            //};
-
-            //return Ok(response);
-
             int currentPageNumber = filterParams.PageNumber ?? 1;
             int currentPageSize = filterParams.PageSize ?? 5;
+
             IQueryable<Product> lProductItems;
 
             if(filterParams.IdCategories != null)
             {
-                if (filterParams.IdCategories.Count() != 0 || filterParams.IdCategories.Count() != _unitOfWork.CategoriesRepository.Count())
+                if (filterParams.IdCategories.Count() != 0 
+                    || filterParams.IdCategories.Count() != _unitOfWork.CategoriesRepository.Count())
                 {
                     lProductItems = _unitOfWork.Products_CategoriesRepository.GetProductsByCategoriesID(filterParams.IdCategories);
                 }
                 else lProductItems = await _unitOfWork.ProductsRepository.GetAllProducts();
             }
             else lProductItems = await _unitOfWork.ProductsRepository.GetAllProducts();
-
 
             lProductItems = _unitOfWork.ProductsRepository.FilterProduct(filterParams, lProductItems);
 
@@ -81,6 +58,7 @@ namespace aspnet_core_web_api.Controllers
         public IActionResult GetProductByID(int id)
         {
             var product = _unitOfWork.ProductsRepository.GetProductByID(id);
+
             if (product == null)
             {
                 return NotFound();
@@ -104,25 +82,37 @@ namespace aspnet_core_web_api.Controllers
             if (ModelState.IsValid)
             {
                 var result = _unitOfWork.ProductsRepository.CreateProduct(product);
-                try
+
+                if(_unitOfWork.Save())
                 {
-                    _unitOfWork.Save();
+                    bool success = true;
                     Product_Category pcObj = new Product_Category();
                     pcObj.ProductID = result.ID;
-                    for (int i = 0; i < idCategories.Count(); i++)
+                    int[] distinctIdCategories = idCategories.Distinct().ToArray();
+                    for (int i = 0; i < distinctIdCategories.Count(); i++)
                     {
-                        pcObj.CategoryID = idCategories[i];
+                        pcObj.CategoryID = distinctIdCategories[i];
                         _unitOfWork.Products_CategoriesRepository.AddCategoriesToProduct(pcObj);
-                        _unitOfWork.Save();
+                        if (!_unitOfWork.Save())
+                        {
+                            success = false;
+                            break;
+                        }
                     }
-                    return Ok(result);
+
+                    if (success)
+                    {
+                        return Ok(result);
+                    }
+                    else
+                    {
+                        _unitOfWork.ProductsRepository.DeleteProduct(result);
+                        _unitOfWork.Save();
+                        return BadRequest();
+                    }
                 }
-                catch
+                else
                 {
-                    _unitOfWork.RollBack();
-                    // nếu thêm categories bị lỗi thì xóa sp - false
-                    _unitOfWork.ProductsRepository.DeleteProduct(result);
-                    _unitOfWork.Save();
                     return BadRequest();
                 }
             }
@@ -137,15 +127,23 @@ namespace aspnet_core_web_api.Controllers
                 try
                 {
                     _unitOfWork.ProductsRepository.UpdateProduct(productObj);
+
                     var lPC = _unitOfWork.Products_CategoriesRepository.GetPCByProductID(productObj.ID);
+
                     foreach (var item in lPC)
                     {
                         _unitOfWork.Products_CategoriesRepository.DeleteProducts_Categories(item);
                     }
-                    _unitOfWork.Save();
+
+                    if (!_unitOfWork.Save())
+                    {
+                        return BadRequest();
+                    }
 
                     Product_Category pcObj = new Product_Category();
+                    idCategories = idCategories.Distinct().ToArray();
                     pcObj.ProductID = productObj.ID;
+
                     foreach (var item in idCategories)
                     {
                         pcObj.CategoryID = item;
@@ -157,8 +155,6 @@ namespace aspnet_core_web_api.Controllers
                 }
                 catch
                 {
-                    _unitOfWork.RollBack();
-                    _unitOfWork.Save();
                     return BadRequest();
                 }
             }
@@ -184,33 +180,6 @@ namespace aspnet_core_web_api.Controllers
             {
                 return BadRequest();
             }
-        }
-
-        [HttpGet("[action]")]
-        public async Task<IActionResult> FilterProduct([FromQuery] FilterParamsProduct filterParams)
-        {
-            int currentPageNumber = filterParams.PageNumber ?? 1;
-            int currentPageSize = filterParams.PageSize ?? 5;
-            IQueryable<Product> lProductItems;
-
-            if (filterParams.IdCategories != null && (filterParams.IdCategories.Count() != 0 || filterParams.IdCategories.Count() != _unitOfWork.CategoriesRepository.Count()))
-            {
-                lProductItems = _unitOfWork.Products_CategoriesRepository.GetProductsByCategoriesID(filterParams.IdCategories);
-            }
-            else lProductItems = await _unitOfWork.ProductsRepository.GetAllProducts();
-
-
-            lProductItems = _unitOfWork.ProductsRepository.FilterProduct(filterParams, lProductItems);
-
-            var lProduct = _unitOfWork.ProductsRepository.SortListProducts(filterParams.Sort, lProductItems);
-
-            var response = new ResponseJSON<Product>
-            {
-                TotalPage = lProduct.Count(),
-                Data = lProduct.Skip((currentPageNumber - 1) * currentPageSize).Take(currentPageSize).ToList()
-            };
-
-            return Ok(response);
         }
     }
 }

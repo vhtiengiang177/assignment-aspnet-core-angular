@@ -8,7 +8,7 @@ using Domain.Values;
 
 namespace Infrastructure.Persistent.Repository
 {
-    public class ProductsRepository : IProductsRepository, IDisposable
+    public class ProductsRepository : IProductsRepository
     {
         private DataDbContext _dbContext;
         private bool disposed = false;
@@ -21,6 +21,7 @@ namespace Infrastructure.Persistent.Repository
         public async Task<IQueryable<Product>> GetAllProducts()
         {
             var lProduct = await _dbContext.Products.ToListAsync();
+
             return lProduct.AsQueryable();
         }
 
@@ -32,6 +33,7 @@ namespace Infrastructure.Persistent.Repository
         public Product CreateProduct(Product product)
         {
             var result = _dbContext.Products.Add(product);
+
             return result.Entity;
         }
 
@@ -74,6 +76,7 @@ namespace Infrastructure.Persistent.Repository
                     lProduct = lProduct.OrderByDescending(p => p.ID).AsQueryable();
                     break;
             }
+
             return lProduct;
         }
 
@@ -89,29 +92,10 @@ namespace Infrastructure.Persistent.Repository
                 lProductItems = lProductItems.Where(x => searchParams.Rating.Contains(x.Rating));
 
             if (searchParams.Content != null)
-                lProductItems = lProductItems.Where(p => p.Name.Contains(searchParams.Content)
+                lProductItems = lProductItems.Where(p => p.Name.ToLower().Contains(searchParams.Content.ToLower())
                 || p.Price.ToString().Contains(searchParams.Content));
 
             return lProductItems.AsQueryable();
         }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!this.disposed)
-            {
-                if (disposing)
-                {
-                    _dbContext.Dispose();
-                }
-            }
-            this.disposed = true;
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
     }
 }

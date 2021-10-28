@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Persistent.Repository
 {
-    public interface IProductsRepository : IDisposable
+    public interface IProductsRepository
     {
         Task<IQueryable<Product>> GetAllProducts();
         Product GetProductByID(int productID);

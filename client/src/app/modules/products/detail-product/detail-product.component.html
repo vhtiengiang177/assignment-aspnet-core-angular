@@ -1,5 +1,5 @@
 <nav-menu></nav-menu>
-<div class="container">
+<div class="container" *ngIf="isVisible">
     <div class="row detail-center">
         <div class="card col-md-6">
             <h2 class="card-title">Product <strong>#{{ response?.product.id }}</strong></h2>

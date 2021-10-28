@@ -1,16 +1,16 @@
 <div class="searchFilter searchFilter-center">
-    <div class="input-group" >
+    <div class="input-group">
         <input id="table_filter" 
-                [(ngModel)]="search"
-                #searchInput 
-                type="text" 
-                class="form-control input-search"> &nbsp; 
+            [(ngModel)]="search" 
+            #searchInput 
+            type="text" 
+            class="form-control input-search"> &nbsp;
         <div class="input-group-btn">
             <button name="searchBtn" 
-                    type="button" 
-                    class="btn btn-secondary btn-search"
-                    (click)="searchProduct(searchInput.value)" >
-                    <fa-icon class="icon-size" [icon]="fasearch"></fa-icon>
+                type="button" 
+                class="btn btn-secondary btn-search"
+                (click)="searchProduct(searchInput.value)">
+                <fa-icon class="icon-size" [icon]="fasearch"></fa-icon>
                 <span class="label-icon">
                     &nbsp; Search
                 </span>
@@ -18,10 +18,10 @@
             <span *ngIf="!isAdvance" (click)="searchFilter()">
                 <fa-icon class="icon-size" [icon]="facircledown"></fa-icon>
             </span>
-        <span *ngIf="isAdvance" (click)="searchFilter()">
-            <fa-icon class="icon-size" [icon]="facircleup"></fa-icon>
-        </span>
-      </div>
+            <span *ngIf="isAdvance" (click)="searchFilter()">
+                <fa-icon class="icon-size" [icon]="facircleup"></fa-icon>
+            </span>
+        </div>
     </div>
 </div>
 <div class="card card-center" *ngIf="this.isAdvance">
@@ -31,13 +31,16 @@
                 <mat-label>Categories</mat-label>
                 <mat-select [(ngModel)]="categories" #selectCategory name="categories" multiple>
                     <mat-select-trigger>
-                    {{ categories ? categories[0]?.name : '' }}
-                    <span *ngIf="categories.length > 1 && !isAllCategories" class="example-additional-selection">
-                        (+{{ categories.length - 1}} {{categories.length === 2 ? 'other' : 'others'}})
-                    </span>
+                        {{ categories ? categories[0]?.name : '' }}
+                        <span *ngIf="categories.length > 1 && !isAllCategories" 
+                            class="example-additional-selection">
+                            (+{{ categories.length - 1}} {{categories.length === 2 ? 'other' : 'others'}})
+                        </span>
                     </mat-select-trigger>
                     <mat-option [value]="{id: 0, name: 'All'}" (click)="selectedAllCategories()">All</mat-option>
-                    <mat-option (click)="selectedCategories(categories)" *ngFor="let category of categoriesStore.categories$ | async" [value]="category">{{category.name}}</mat-option>
+                    <mat-option (click)="selectedCategories(categories)"
+                        *ngFor="let category of categoriesStore.categories$ | async" [value]="category">
+                        {{category.name}}</mat-option>
                 </mat-select>
             </mat-form-field>
         </div>
@@ -46,13 +49,16 @@
                 <mat-label>Rating</mat-label>
                 <mat-select [(ngModel)]="rating" #selectRating name="rating" multiple>
                     <mat-select-trigger>
-                    {{ rating[0] ? rating[0] : 'All' }}
-                    <span *ngIf="rating.length > 1 && !isAllRating" class="example-additional-selection">
-                        (+{{ rating.length - 1}} {{rating.length === 2 ? 'other' : 'others'}})
-                    </span>
+                        {{ rating[0] ? rating[0] : 'All' }}
+                        <span *ngIf="rating.length > 1 && !isAllRating" class="example-additional-selection">
+                            (+{{ rating.length - 1}} {{rating.length === 2 ? 'other' : 'others'}})
+                        </span>
                     </mat-select-trigger>
                     <mat-option (click)="selectedAllRating()" [value]="0">All</mat-option>
-                    <mat-option (click)="selectedRating(rating)" *ngFor="let item of ratingOption" [value]="item">{{ item }}</mat-option>
+                    <mat-option (click)="selectedRating(rating)" 
+                        *ngFor="let item of ratingOption" 
+                        [value]="item">
+                        {{ item }}</mat-option>
                 </mat-select>
             </mat-form-field>
         </div>
@@ -65,18 +71,13 @@
         <div class="form-group col-md-3">
             <mat-form-field>
                 <mat-label>Max Price (đ)</mat-label>
-                <input matInput type="number" min="0" [(ngModel)]="maxPrice" (change)="checkMaxPrice()" >
+                <input matInput type="number" min="0" [(ngModel)]="maxPrice" (change)="checkMaxPrice()">
             </mat-form-field>
         </div>
         <div class="div-reset">
-            <button name="resetBtn" 
-            type="button" 
-            class="btn btn-reset"
-            (click)="reset()" >
+            <button name="resetBtn" type="button" class="btn btn-reset" (click)="reset()">
                 <fa-icon class="icon-size" [icon]="faSync"></fa-icon>
             </button>
         </div>
     </div>
-
 </div>
-

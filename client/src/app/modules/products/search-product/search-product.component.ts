@@ -2,7 +2,6 @@ import { Component, Input, OnInit, Output, ViewChild, EventEmitter } from '@angu
 import { MatOption, MatSelect } from '@angular/material';
 import { CategoriesStoreService } from 'src/app/services/store/categories-store/categories-store.service';
 import { Category } from 'src/app/services/model/category.model';
-import { SearchAdvance } from 'src/app/services/model/search-advance.model';
 import { faSearch, faChevronCircleDown, faChevronCircleUp, faSync } from '@fortawesome/free-solid-svg-icons';
 import { FilterParamsProduct } from 'src/app/services/model/filter-params-product.model';
 
@@ -14,9 +13,7 @@ import { FilterParamsProduct } from 'src/app/services/model/filter-params-produc
 export class SearchProductComponent implements OnInit {
   @ViewChild('selectCategory', {static: false}) selectCategory: MatSelect;
   @ViewChild('selectRating', {static:false}) selectRating: MatSelect;
-  @Input('post-per-page') postPerPage : number;
   @Output('search-event') searchEvent = new EventEmitter<FilterParamsProduct>();
-  @Output('reset-event') resetEvent = new EventEmitter();
 
   isAdvance: boolean = false;
   isAllCategories : boolean = false;
@@ -96,8 +93,9 @@ export class SearchProductComponent implements OnInit {
   }
 
   checkMinPrice() {
-    if(this.minPrice < 0) {
-      this.minPrice = 0;
+    if(this.minPrice < 0) 
+    {
+      this.minPrice = null;
     }
     if(this.maxPrice) {
       if(this.minPrice > this.maxPrice) {
@@ -107,6 +105,10 @@ export class SearchProductComponent implements OnInit {
   }
   
   checkMaxPrice() {
+    if(this.maxPrice < 0) 
+    {
+      this.maxPrice = null;
+    }
     if(this.minPrice) {
       if(this.maxPrice < this.minPrice) {
         this.maxPrice = this.minPrice;
@@ -145,8 +147,6 @@ export class SearchProductComponent implements OnInit {
     this.rating = [];
     this.minPrice = null;
     this.maxPrice = null;
-
-    this.resetEvent.emit();
   }
 
 }

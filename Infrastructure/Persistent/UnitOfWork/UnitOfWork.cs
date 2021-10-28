@@ -1,5 +1,4 @@
-﻿
-using Domain.Entity;
+﻿using Domain.Entity;
 using Domain.Infrastructure.Persistent;
 using Infrastructure.Persistent.Repository;
 using Microsoft.EntityFrameworkCore;
@@ -74,32 +73,18 @@ namespace Infrastructure.Persistent.UnitOfWork
             }
         }
 
-        public void Save()
+        public bool Save()
         {
-            _dbContext.SaveChanges();
-        }
-
-        public void RollBack()
-        {
-            var changedEntries = _dbContext.ChangeTracker.Entries()
-                .Where(x => x.State != EntityState.Unchanged).ToList();
-
-            foreach (var entry in changedEntries)
+            try
             {
-                switch (entry.State)
-                {
-                    case EntityState.Modified:
-                        entry.CurrentValues.SetValues(entry.OriginalValues);
-                        entry.State = EntityState.Unchanged;
-                        break;
-                    case EntityState.Added:
-                        entry.State = EntityState.Detached;
-                        break;
-                    case EntityState.Deleted:
-                        entry.State = EntityState.Unchanged;
-                        break;
-                }
+                _dbContext.SaveChanges();
+                return true;
+            }
+            catch
+            {
+                return false;
             }
         }
-    }
+
+     }
 }

@@ -8,7 +8,6 @@ import { LoginComponent } from './modules/authentication/login/login.component';
 import { HomeComponent } from './modules/layout/home/home.component';
 import { ProductsListComponent } from './modules/products/products-list/products-list.component';
 import { RouterModule } from '@angular/router';
-import { NoAccessComponent } from './_shared/components/no-access/no-access.component';
 import { NotFoundComponent } from './_shared/components/not-found/not-found.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AuthGuard } from './services/auth-guard/auth-guard.service';
@@ -34,7 +33,6 @@ import { DeleteFormComponent } from './modules/products/delete-form/delete-form.
     LoginComponent,
     HomeComponent,
     ProductsListComponent,
-    NoAccessComponent,
     NotFoundComponent,
     SearchProductComponent,
     FormProductComponent,
@@ -71,7 +69,6 @@ import { DeleteFormComponent } from './modules/products/delete-form/delete-form.
         component: ProductsListComponent, 
         canActivate: [AuthGuard]
       },
-      { path: 'no-access', component: NoAccessComponent },
       { path: 'not-found', component: NotFoundComponent },
       {
         path: 'products/:id',

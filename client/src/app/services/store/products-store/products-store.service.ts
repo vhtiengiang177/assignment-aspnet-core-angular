@@ -58,22 +58,6 @@ export class ProductsStoreService {
               });
   }
 
-  async searchProduct(pageNumber, pageSize, sort, idCategories, search) {
-    await this.productService.searchProduct(pageNumber, pageSize, sort, idCategories, search)
-              .subscribe(res => {
-                this.products = res.data;
-                this.totalPage = res.totalPage;
-              })
-  }
-
-  async filterProduct(filterParams) {
-    await this.productService.filterProduct(filterParams)
-      .subscribe(res => {
-        this.products = res.data;
-        this.totalPage = res.totalPage;
-      })
-  }
-
    add (productObj, idCategories) {
     let result = new Subject<Product>();
     this.productService.add(productObj, idCategories).subscribe(res => {

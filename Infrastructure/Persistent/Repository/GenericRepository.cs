@@ -52,7 +52,7 @@ namespace Infrastructure.Persistent.Repository
             return dbSet.Find(id);
         }
 
-        public virtual void Insert(TEntity entity)
+        public virtual void Create(TEntity entity)
         {
             dbSet.Add(entity);
         }
@@ -78,7 +78,7 @@ namespace Infrastructure.Persistent.Repository
             context.Entry(entityToUpdate).State = EntityState.Modified;
         }
 
-        public int Count()
+        public virtual int Count()
         {
             return dbSet.Count<TEntity>();
         }

@@ -17,6 +17,7 @@ export class DetailProductComponent implements OnInit {
   id: number
   supplierName: string
   categories: Category[]
+  isVisible: boolean = false;
 
   constructor(private route: ActivatedRoute,
     private router: Router,
@@ -26,6 +27,7 @@ export class DetailProductComponent implements OnInit {
     this.route.params.subscribe((param) => {
       this.id = param['id']
       this.productStore.getProduct(param['id']).subscribe(res => {
+        this.isVisible = true;
         this.response = res;
         this.supplierName = this.supplierStore.suppliers.filter(s => s.id == this.response.product.supplierID).pop().name
         this.categories = this.response.categories; 

@@ -34,20 +34,6 @@ export class DataService {
     }))
   }
 
-  handleError(error: HttpErrorResponse) {
-    // let errorMessage = '';
- 
-    // if (error.error instanceof ErrorEvent) {
-    //   // client-side error
-    //   errorMessage = error.error.message;
-    // } else {
-    //   // server-side error
-    //   errorMessage = `Status error code: ${error.status} \nMessage: ${error.message} `;
-    // }
-    // window.alert(errorMessage);
- 
-    // return throwError(errorMessage);
-  }
 
   authorizationHeader() {
     let headers = new HttpHeaders();

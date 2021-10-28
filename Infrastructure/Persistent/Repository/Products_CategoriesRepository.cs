@@ -18,9 +18,12 @@ namespace Infrastructure.Persistent.Repository
 
         public IQueryable<Product> GetProductsByCategoriesID(int[] idCategories)
         {
+            int[] distinctIdCategories = idCategories.Distinct().ToArray();
+
             var lProductItem = _dbContext.Product_Categories
-                                    .Where(pc => idCategories.Contains(pc.CategoryID))
+                                    .Where(pc => distinctIdCategories.Contains(pc.CategoryID))
                                     .Select(s => s.Product).ToList();
+
             return lProductItem.GroupBy(gb => gb.ID).Select(s => s.First()).AsQueryable();
         }
 
@@ -38,6 +41,7 @@ namespace Infrastructure.Persistent.Repository
         {
             var lCategoriesID = _dbContext.Product_Categories
                 .Where(pc => pc.ProductID == idProduct).Select(pc => pc.Category);
+
             return lCategoriesID;
         }
 
@@ -45,6 +49,7 @@ namespace Infrastructure.Persistent.Repository
         {
             var lPC = _dbContext.Product_Categories
                 .Where(pc => pc.ProductID == idProduct);
+
             return lPC;
         }
     }

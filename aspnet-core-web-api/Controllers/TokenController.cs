@@ -1,14 +1,11 @@
 ﻿using Domain.Entity;
 using Infrastructure.Persistent;
 using Infrastructure.Persistent.UnitOfWork;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,8 +16,8 @@ namespace aspnet_core_web_api.Controllers
     [ApiController]
     public class TokenController : ControllerBase
     {
-        public IConfiguration _configuration;
-        public UnitOfWork _unitOfWork;
+        private IConfiguration _configuration;
+        private UnitOfWork _unitOfWork;
 
         public TokenController(IConfiguration configuration, DataDbContext dataDbContext)
         {
@@ -29,7 +26,7 @@ namespace aspnet_core_web_api.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> Post([FromBody] User userObj)
+        public async Task<ActionResult> Login([FromBody] User userObj)
         {
             var user = await _unitOfWork.UsersRepository.GetAUser(userObj.Username, userObj.Password);
             if (user != null)
@@ -47,7 +44,11 @@ namespace aspnet_core_web_api.Controllers
 
                 var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-                var token = new JwtSecurityToken(_configuration["Jwt:Issuer"], _configuration["Jwt:Audience"], claims, expires: DateTime.UtcNow.AddDays(1), signingCredentials: signIn);
+                var token = new JwtSecurityToken(_configuration["Jwt:Issuer"], 
+                    _configuration["Jwt:Audience"], 
+                    claims, 
+                    expires: DateTime.UtcNow.AddDays(10), 
+                    signingCredentials: signIn);
 
                 return Ok(new JwtSecurityTokenHandler().WriteToken(token));
             }

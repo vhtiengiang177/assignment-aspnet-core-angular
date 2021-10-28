@@ -1,6 +1,5 @@
-import { Component, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialog, MatPaginator, PageEvent } from '@angular/material';
-import { SearchAdvance } from '../../../services/model/search-advance.model';
 import { ProductsStoreService } from '../../../services/store/products-store/products-store.service';
 import { ProductService } from '../../../services/product/product.service';
 import { faSortUp, faSortDown, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
@@ -8,7 +7,6 @@ import { ToastrService } from 'ngx-toastr';
 import { FormProductComponent } from '../form-product/form-product.component';
 import { DeleteFormComponent } from '../delete-form/delete-form.component';
 import { FilterParamsProduct } from 'src/app/services/model/filter-params-product.model';
-import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'products-list',
@@ -110,16 +108,9 @@ export class ProductsListComponent implements OnInit {
         maxprice: $event.maxprice,
         rating: $event.rating
       }
+      this.paginator.pageIndex = 0;
 
       this.productsStore.getAll(this.filter)
-      
-      // this.filter.content = $event.content;
-      // this.filter.idcategories = $event.idcategories;
-      // this.filter.minprice = $event.minprice;
-      // this.filter.maxprice = $event.maxprice;
-      // this.filter.rating = $event.rating;
-      
-      // this.productsStore.filterProduct(this.filter)
   }
 
   reloadProduct() {

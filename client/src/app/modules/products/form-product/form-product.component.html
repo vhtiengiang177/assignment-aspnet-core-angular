@@ -1,5 +1,5 @@
 <h2 *ngIf="this.data.typeform === 0" mat-dialog-title>Add Product</h2>
-<h2 *ngIf="this.data.typeform === 1" mat-dialog-title>Edit Product <strong>#{{data.product.id}}</strong></h2>
+<h2 *ngIf="this.data.typeform === 1" mat-dialog-title>Edit Product <strong>#{{ data.product.id }}</strong></h2>
 <mat-dialog-content class="mat-typography">
     <div class="form-group custom-form">
         <mat-form-field appearance="fill" class="col-md-8">
@@ -75,7 +75,8 @@
     <div class="form-group custom-form">
         <mat-form-field appearance="fill" class="col-md-8">
             <mat-label>Supplier</mat-label>
-            <mat-select [(ngModel)]="data.product.supplierID" [compareWith]="compareSupplier" #selectSupplier="ngModel" name="supplier" >
+            <mat-select [(ngModel)]="data.product.supplierID" [compareWith]="compareSupplier" #selectSupplier="ngModel" name="supplier">
+                <mat-option>None</mat-option>
                 <mat-option (click)="selectedSupplier(supplier)" *ngFor="let supplier of suppliersStore.suppliers$ | async" [value]="supplier.id">{{supplier.name}}</mat-option>
             </mat-select>
             <mat-error class="error-required" *ngIf="selectSupplier.touched && selectSupplier.invalid && selectSupplier.errors?.required">
